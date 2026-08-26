@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #F7F5EF; }
+  body { font-family: "Public Sans", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1F5C7A; text-decoration: none; }
+  a:hover { color: #132A45; text-decoration: underline; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #F7F5EF; color: #23303C; font-family: 'Public Sans', Helvetica, Arial, sans-serif; display: flex; flex-direction: column;">
+
+  <header style="background: #132A45; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; position: relative; z-index: 30;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <button type="button" onClick="{{ openDrawer }}" title="Open navigation" style="width: 38px; height: 38px; border-radius: 10px; border: 1px solid #294564; background: transparent; color: #B8C4D1; font-size: 15px; cursor: pointer; display: {{ hamburgerDisplay }}; align-items: center; justify-content: center; flex: none;" style-hover="background: #1E3A5C; color: #FFFFFF;">☰</button>
+      <div style="width: 40px; height: 40px; border-radius: 999px; background: #2F7D6B; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; flex: none;">DC</div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA8B8;">Government of Sindh</div>
+        <div style="font-size: 18px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;">District Coordination — Case Management System</div>
+      </div>
+    </div>
+    <div style="font-size: 11.5px; color: #92A0B0;">Office of the Assistant Commissioner</div>
+  </header>
+
+  <div style="display: flex; flex: 1; min-height: 0; align-items: stretch; position: relative;">
+
+    <nav style="width: {{ railWidth }}; flex: none; background: #132A45; display: {{ railDisplay }}; flex-direction: column; transition: width 260ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div style="display: flex; justify-content: {{ toggleAlign }}; padding: 14px 12px 8px;">
+        <button type="button" onClick="{{ toggleCollapse }}" title="{{ toggleTitle }}" style="width: 34px; height: 34px; border-radius: 9px; border: none; background: #1B3251; color: #B8C4D1; font-size: 14px; cursor: pointer; flex: none;" style-hover="background: #1E3A5C; color: #FFFFFF;">{{ toggleGlyph }}</button>
+      </div>
+
+      <div style="display: grid; gap: 3px; padding: 6px 10px;">
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="7">
+          <div style="position: relative;">
+            <button type="button" onClick="{{ it.select }}" onMouseEnter="{{ it.hoverOn }}" onMouseLeave="{{ it.hoverOff }}" style="width: 100%; display: flex; align-items: center; gap: 12px; justify-content: {{ it.justify }}; border: none; border-radius: 10px; padding: 11px 12px; background: {{ it.bg }}; color: {{ it.fg }}; font-family: inherit; font-size: 13.5px; font-weight: {{ it.weight }}; cursor: pointer; text-align: left; position: relative; overflow: hidden;" style-hover="background: #1B3251; color: #FFFFFF;">
+              <span style="position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: {{ it.accent }};"></span>
+              <span style="width: 20px; text-align: center; font-size: 14px; flex: none;">{{ it.icon }}</span>
+              <span style="display: {{ it.labelDisplay }}; white-space: nowrap;">{{ it.label }}</span>
+              <span style="display: {{ it.badgeDisplay }}; margin-left: auto; background: #B23A3A; color: #FFFFFF; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 8px;">{{ it.badge }}</span>
+            </button>
+            <span style="display: {{ it.tipDisplay }}; position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 10px; background: #1E3A5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600; padding: 7px 11px; border-radius: 9px; white-space: nowrap; z-index: 40; pointer-events: none;">{{ it.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top: auto; padding: 12px 10px 16px;">
+        <div style="border-top: 1px solid #22405F; padding-top: 12px; display: flex; align-items: center; gap: 11px; justify-content: {{ profileJustify }};">
+          <div style="width: 34px; height: 34px; border-radius: 999px; background: #2F7D6B; color: #FFFFFF; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">SJ</div>
+          <div style="display: {{ profileDisplay }}; min-width: 0; flex: 1;">
+            <div style="font-size: 13px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Shazia Junejo</div>
+            <div style="font-size: 11px; color: #8FA0B4; margin-top: 2px;">AC Office · Super Admin</div>
+          </div>
+          <button type="button" title="Log out" style="display: {{ profileDisplay }}; border: none; background: transparent; color: #8FA0B4; font-size: 14px; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex: none;" style-hover="background: #1E3A5C; color: #FFFFFF;">⏻</button>
+        </div>
+      </div>
+    </nav>
+
+    <main style="flex: 1; min-width: 0; background: #F7F5EF; padding: 28px 32px 48px;">
+      <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">{{ activeLabel }}</div>
+      <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.025em; color: #132A45; margin: 8px 0 8px;">{{ activeLabel }}</h1>
+      <p style="font-size: 14.5px; color: #6E7784; margin: 0; max-width: 620px; line-height: 1.5;">{{ activeBlurb }}</p>
+
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D6; border-radius: 14px; padding: 26px 28px; margin-top: 22px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: #132A45;">Navigation states</div>
+        <div style="display: grid; gap: 10px; margin-top: 14px;">
+          <div style="font-size: 13.5px; color: #545E69; line-height: 1.6;">Expanded rail is 240px and shows icon plus label. Collapsed rail is 64px, icons only, with a tooltip on hover. On tablet and mobile the rail starts collapsed and the header hamburger opens it as a drawer over a dark scrim.</div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+            <button type="button" onClick="{{ demoExpanded }}" style="background: #FFFFFF; border: 1px solid #DCD6C8; border-radius: 10px; padding: 10px 18px; font-family: inherit; font-size: 13px; font-weight: 700; color: #3D4854; cursor: pointer;" style-hover="border-color: #132A45;">Expanded</button>
+            <button type="button" onClick="{{ demoCollapsed }}" style="background: #FFFFFF; border: 1px solid #DCD6C8; border-radius: 10px; padding: 10px 18px; font-family: inherit; font-size: 13px; font-weight: 700; color: #3D4854; cursor: pointer;" style-hover="border-color: #132A45;">Collapsed rail</button>
+            <button type="button" onClick="{{ demoDrawer }}" style="background: #132A45; border: none; border-radius: 10px; padding: 10px 18px; font-family: inherit; font-size: 13px; font-weight: 700; color: #FFFFFF; cursor: pointer;" style-hover="background: #1C3A5C;">Mobile drawer</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeDrawer }}" style="position: fixed; inset: 0; background: rgba(11, 26, 43, 0.42); z-index: 50; display: flex;">
+        <nav onClick="{{ stop }}" style="width: 260px; max-width: 84vw; background: #132A45; height: 100%; display: flex; flex-direction: column; box-shadow: 12px 0 40px rgba(11, 26, 43, 0.28);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 16px 10px;">
+            <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8FA0B4;">Navigation</div>
+            <button type="button" onClick="{{ closeDrawer }}" style="width: 32px; height: 32px; border-radius: 9px; border: none; background: #1B3251; color: #B8C4D1; font-size: 15px; cursor: pointer;" style-hover="background: #1E3A5C; color: #FFFFFF;">×</button>
+          </div>
+          <div style="display: grid; gap: 3px; padding: 6px 10px;">
+            <sc-for list="{{ drawerItems }}" as="it" hint-placeholder-count="7">
+              <button type="button" onClick="{{ it.select }}" style="width: 100%; display: flex; align-items: center; gap: 12px; border: none; border-radius: 10px; padding: 12px; background: {{ it.bg }}; color: {{ it.fg }}; font-family: inherit; font-size: 14px; font-weight: {{ it.weight }}; cursor: pointer; text-align: left; position: relative; overflow: hidden;" style-hover="background: #1B3251; color: #FFFFFF;">
+                <span style="position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: {{ it.accent }};"></span>
+                <span style="width: 20px; text-align: center; font-size: 14px; flex: none;">{{ it.icon }}</span>
+                <span style="white-space: nowrap;">{{ it.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="margin-top: auto; padding: 12px 14px 18px;">
+            <div style="border-top: 1px solid #22405F; padding-top: 12px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 34px; height: 34px; border-radius: 999px; background: #2F7D6B; color: #FFFFFF; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">SJ</div>
+              <div style="min-width: 0; flex: 1;">
+                <div style="font-size: 13px; font-weight: 700; color: #FFFFFF;">Shazia Junejo</div>
+                <div style="font-size: 11px; color: #8FA0B4; margin-top: 2px;">AC Office · Super Admin</div>
+              </div>
+              <button type="button" title="Log out" style="border: none; background: transparent; color: #8FA0B4; font-size: 14px; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex: none;" style-hover="background: #1E3A5C; color: #FFFFFF;">⏻</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;superAdmin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Access&quot;},&quot;hideRail&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+const ITEMS = [
+  { id: "dashboard", label: "Dashboard", icon: "▦", blurb: "Live case counts, overdue alerts and the district case register." },
+  { id: "cases", label: "All Cases", icon: "▤", blurb: "Every logged case with department, status and referral filters." },
+  { id: "new", label: "New Case", icon: "＋", blurb: "Log a walk-in or telephonic complaint into the AC office register." },
+  { id: "priority", label: "High Priority", icon: "▲", badge: "6", blurb: "Cases flagged urgent or past the 15-day resolution window." },
+  { id: "departments", label: "Departments & Access", icon: "◎", admin: true, blurb: "Departments receiving referrals and the officers permitted to act." },
+  { id: "reports", label: "Reports", icon: "◫", blurb: "Monthly disposal summaries for the Deputy Commissioner's review." },
+  { id: "settings", label: "Settings", icon: "⚙", blurb: "Office details, notification routing and register preferences." }
+];
+
+class Component extends DCLogic {
+  state = { active: "dashboard", collapsed: false, drawerOpen: false, hovered: null, narrow: false };
+
+  componentDidMount() {
+    this._sync = () => {
+      const narrow = window.innerWidth < 900;
+      if (narrow !== this._narrow) {
+        this._narrow = narrow;
+        this.setState({ collapsed: narrow, drawerOpen: false, narrow: narrow });
+      }
+    };
+    this._narrow = null;
+    this._sync();
+    window.addEventListener("resize", this._sync);
+  }
+  componentWillUnmount() { window.removeEventListener("resize", this._sync); }
+
+  build(item, opts) {
+    const isActive = item.id === this.state.active;
+    const collapsed = opts.collapsed;
+    return {
+      label: item.label,
+      icon: item.icon,
+      bg: isActive ? "#1E3A5C" : "transparent",
+      fg: isActive ? "#FFFFFF" : "#B8C4D1",
+      weight: isActive ? 700 : 500,
+      accent: isActive ? "#2F7D6B" : "transparent",
+      justify: collapsed ? "center" : "flex-start",
+      labelDisplay: collapsed ? "none" : "inline",
+      badge: item.badge || "",
+      badgeDisplay: item.badge && !collapsed ? "inline-block" : "none",
+      tipDisplay: collapsed && this.state.hovered === item.id ? "block" : "none",
+      hoverOn: () => this.setState({ hovered: item.id }),
+      hoverOff: () => this.setState({ hovered: null }),
+      select: () => this.setState({ active: item.id, drawerOpen: false })
+    };
+  }
+
+  renderVals() {
+    const superAdmin = this.props.superAdmin !== false;
+    const visible = ITEMS.filter(i => superAdmin || !i.admin);
+    const collapsed = this.state.collapsed;
+    const active = ITEMS.find(i => i.id === this.state.active) || ITEMS[0];
+
+    return {
+      items: visible.map(i => this.build(i, { collapsed })),
+      drawerItems: visible.map(i => this.build(i, { collapsed: false })),
+      railWidth: collapsed ? "64px" : "240px",
+      railDisplay: this.props.hideRail ? "none" : "flex",
+      toggleAlign: collapsed ? "center" : "flex-end",
+      toggleGlyph: collapsed ? "»" : "«",
+      toggleTitle: collapsed ? "Expand navigation" : "Collapse navigation",
+      toggleCollapse: () => this.setState(s => ({ collapsed: !s.collapsed, hovered: null })),
+      profileDisplay: collapsed ? "none" : "block",
+      profileJustify: collapsed ? "center" : "flex-start",
+      hamburgerDisplay: this.state.narrow ? "flex" : "none",
+      drawerOpen: this.state.drawerOpen,
+      openDrawer: () => this.setState({ drawerOpen: true }),
+      closeDrawer: () => this.setState({ drawerOpen: false }),
+      stop: e => e.stopPropagation(),
+      activeLabel: active.label,
+      activeBlurb: active.blurb,
+      demoExpanded: () => this.setState({ collapsed: false, drawerOpen: false }),
+      demoCollapsed: () => this.setState({ collapsed: true, drawerOpen: false }),
+      demoDrawer: () => this.setState({ drawerOpen: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

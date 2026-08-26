@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+/*
+ * Blade templates are picked up automatically, but the status/priority pill
+ * classes are returned from PHP enums, so app/ must be scanned too or those
+ * utilities get tree-shaken out of the build.
+ */
+@source '../views/**/*.blade.php';
+@source '../../app/**/*.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+/*
+ * Design tokens — the single source of truth is docs/design-system.md.
+ *
+ * Tailwind v4 replaces tailwind.config.js with this `@theme` block: every
+ * custom property below becomes a first-class utility (`--color-navy` yields
+ * `bg-navy`, `text-navy`, `border-navy`, and so on), which is why no Blade
+ * template in this project contains a raw hex code.
+ */
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+    /* Section 1 — core colour tokens */
+    --color-cream: #f7f5ef;
+    --color-surface: #ffffff;
+    --color-navy: #132a45;
+    --color-navy-light: #1e3a5c;
+    --color-navy-hover: #1b3251;
+    --color-teal: #2f7d6b;
+    --color-teal-tint: #e4f0eb;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #3d4854;
+    --color-text-muted: #8a7f6e;
+    --color-text-inverse: #ffffff;
+    --color-text-inverse-muted: #b8c4d1;
+    --color-border: #edeae2;
+
+    /* Section 1 — stat card pairs */
+    --color-total-bg: #ffffff;
+    --color-total-text: #1a1a1a;
+    --color-overdue-bg: #fbe3e3;
+    --color-overdue-text: #b23a3a;
+
+    /* Section 1 — status pill pairs */
+    --color-pending-bg: #fbebd3;
+    --color-pending-text: #9a6a1e;
+    --color-resolved-bg: #e1efe0;
+    --color-resolved-text: #3a6b39;
+    --color-escalated-bg: #fbe3e3;
+    --color-escalated-text: #c43d3d;
+    --color-progress-bg: #eae6f7;
+    --color-progress-text: #5b4fa8;
+    --color-closed-bg: #edeae2;
+    --color-closed-text: #6b6b6b;
+    --color-referred-bg: #dce7f7;
+    --color-referred-text: #2e5fa8;
+
+    /* Section 3 — corner radius: 10–14px on cards, buttons, inputs, pills */
+    --radius-control: 10px;
+    --radius-card: 14px;
+
+    /* Section 4 — sidebar rail widths */
+    --spacing-sidebar: 240px;
+    --spacing-rail: 64px;
+}
+
+/*
+ * Collapsed sidebar state.
+ *
+ * This is a class on <html> set by a blocking script in the document head,
+ * not an Alpine binding. A bound class is only applied after hydration, so the
+ * sidebar was painted with no width at all and then jumped — and animated —
+ * into place on every single page load. Resolving it in CSS means the rail is
+ * correct on the first frame, and the width transition only ever runs when the
+ * officer actually clicks the toggle.
+ */
+@custom-variant rail (html.sidebar-collapsed &);
+
+@layer base {
+    html {
+        background-color: var(--color-cream);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        color: var(--color-text-primary);
+    }
+
+    /* Section 2 — table headers: uppercase, 11–12px, letter-spaced, muted */
+    th {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+/*
+ * Shared component classes.
+ *
+ * Declared with `@utility` rather than inside `@layer components` so they can
+ * compose each other — `.btn-primary` applies `btn`, which Tailwind v4 only
+ * resolves for classes registered as real utilities.
+ */
+
+/* Section 5 — inputs: rounded, light border, comfortable padding */
+@utility field {
+    @apply w-full min-w-0 max-w-full rounded-control border border-border bg-surface px-3.5 py-3 text-base text-text-primary
+    outline-none transition placeholder:text-text-muted focus:border-teal focus:ring-2 focus:ring-teal/15 md:text-sm;
+}
+
+@utility field-label {
+    @apply block text-xs font-bold text-text-secondary;
+}
+
+@utility field-error {
+    @apply mt-1 text-xs font-medium text-escalated-text;
+}
+
+/* Section 5 — buttons */
+@utility btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-bold
+    transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+}
+
+@utility btn-primary {
+    @apply btn bg-navy text-text-inverse hover:bg-navy-light;
+}
+
+@utility btn-secondary {
+    @apply btn border border-border bg-surface text-text-secondary hover:border-navy;
+}
+
+@utility btn-ghost-teal {
+    @apply btn border border-teal/25 bg-surface text-teal hover:bg-teal-tint;
+}
+
+/* Section 3 — cards: white fill, subtle border, no harsh shadow */
+@utility card {
+    @apply rounded-card border border-border bg-surface;
+}
+
+@utility pill {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap;
+}
+
+/* Section 2 — small muted helper text and timestamps */
+@utility meta {
+    @apply text-xs text-text-muted;
+}

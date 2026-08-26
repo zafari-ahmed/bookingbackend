@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #F7F5EF; }
+  body { font-family: "Public Sans", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1F5C7A; text-decoration: none; }
+  a:hover { color: #132A45; text-decoration: underline; }
+  ::placeholder { color: #A8A297; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #F7F5EF; color: #23303C; font-family: 'Public Sans', Helvetica, Arial, sans-serif;">
+
+  <header style="background: #132A45; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 42px; height: 42px; border-radius: 999px; background: #2F7D6B; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.04em; flex: none;">DC</div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA8B8;">Government of Sindh</div>
+        <div style="font-size: 20px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;">District Coordination — Case Management System</div>
+        <div style="font-size: 12.5px; color: #B8C4D0;">Office of the Assistant Commissioner · Public Grievance &amp; Referral Desk</div>
+      </div>
+    </div>
+    <div style="font-size: 11.5px; color: #92A0B0; text-align: right; line-height: 1.4;">As of {{ nowLabel }}</div>
+  </header>
+
+  <main style="max-width: 1420px; margin: 0 auto; padding: 22px 32px 64px;">
+
+    <a href="Case Management Dashboard.dc.html" style="display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #1F5C7A;">← Back to Dashboard</a>
+
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin: 18px 0 26px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h1 style="font-size: 30px; font-weight: 800; letter-spacing: -0.025em; color: #132A45; margin: 0;">Departments &amp; Access</h1>
+          <span style="display: inline-block; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 700; background: #E4F0EB; color: #2F7D6B;">Super Admin</span>
+        </div>
+        <p style="font-size: 14.5px; color: #6E7784; margin: 7px 0 0; max-width: 640px; line-height: 1.5;">Departments receiving referrals from the AC office, and the officers permitted to act on them.</p>
+      </div>
+      <button type="button" style="background: #132A45; color: #FFFFFF; border: none; border-radius: 10px; padding: 12px 22px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #1C3A5C;">+ Add Department</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+      <sc-for list="{{ departments }}" as="d" hint-placeholder-count="9">
+        <section style="background: #FFFFFF; border: 1px solid {{ d.border }}; border-radius: 14px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+            <div style="display: grid; gap: 8px;">
+              <div style="font-size: 16px; font-weight: 700; color: #132A45; letter-spacing: -0.01em;">{{ d.name }}</div>
+              <span style="display: inline-block; border-radius: 999px; padding: 4px 11px; font-size: 11.5px; font-weight: 600; background: {{ d.tagBg }}; color: {{ d.tagFg }}; width: fit-content;">{{ d.tag }}</span>
+            </div>
+            <div style="font-size: 12.5px; color: #8A9099; white-space: nowrap; padding-top: 2px;">{{ d.userLabel }}</div>
+          </div>
+          <div style="font-size: 12.5px; color: #6E7784; line-height: 1.5;">{{ d.focal }}</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #F1EDE2; padding-top: 12px; margin-top: auto;">
+            <button type="button" onClick="{{ d.manage }}" style="border: none; background: transparent; padding: 0; font-family: inherit; font-size: 13px; font-weight: 700; color: #1F5C7A; cursor: pointer;" style-hover="color: #132A45;">Manage Users →</button>
+            <div style="font-size: 12px; color: #949AA2;">{{ d.openCases }}</div>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ active }}" hint-placeholder-val="{{ false }}">
+      <section style="background: #FFFFFF; border: 1px solid #E7E2D6; border-radius: 14px; margin-top: 26px; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Users in department</div>
+            <div style="font-size: 19px; font-weight: 700; color: #132A45; margin-top: 4px; letter-spacing: -0.01em;">{{ active.name }}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" style="background: #FFFFFF; color: #2F7D6B; border: 1px solid #C7DED6; border-radius: 10px; padding: 10px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;" style-hover="background: #F1F8F5;">+ Add User</button>
+            <button type="button" onClick="{{ closePanel }}" style="background: #F4F2EA; border: none; border-radius: 10px; width: 34px; height: 34px; font-size: 16px; color: #5A6470; cursor: pointer;" style-hover="background: #E8E5DB;">×</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 820px;">
+            <thead>
+              <tr style="background: #FCFBF7;">
+                <th style="text-align: left; padding: 12px 14px 12px 24px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-top: 1px solid #EDE8DC; border-bottom: 1px solid #EDE8DC;">User Name</th>
+                <th style="text-align: left; padding: 12px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-top: 1px solid #EDE8DC; border-bottom: 1px solid #EDE8DC;">Email</th>
+                <th style="text-align: left; padding: 12px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-top: 1px solid #EDE8DC; border-bottom: 1px solid #EDE8DC;">Role</th>
+                <th style="text-align: left; padding: 12px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-top: 1px solid #EDE8DC; border-bottom: 1px solid #EDE8DC;">Status</th>
+                <th style="text-align: right; padding: 12px 24px 12px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-top: 1px solid #EDE8DC; border-bottom: 1px solid #EDE8DC;">Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ users }}" as="u" hint-placeholder-count="5">
+                <tr style="border-bottom: 1px solid #F1EDE2; background: {{ u.rowBg }};" style-hover="background: #F6F4EC;">
+                  <td style="padding: 14px 14px 14px 24px; font-weight: 600; color: #1D2A36; white-space: nowrap;">{{ u.name }}<br /><span style="font-weight: 400; color: #949AA2; font-size: 12px;">{{ u.designation }}</span></td>
+                  <td style="padding: 14px; color: #545E69; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap;">{{ u.email }}</td>
+                  <td style="padding: 14px; white-space: nowrap;">
+                    <span style="display: inline-block; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: {{ u.roleBg }}; color: {{ u.roleFg }};">{{ u.role }}</span>
+                  </td>
+                  <td style="padding: 14px; white-space: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <button type="button" onClick="{{ u.toggle }}" style="width: 42px; height: 24px; border-radius: 999px; border: none; cursor: pointer; padding: 3px; display: flex; justify-content: {{ u.justify }}; background: {{ u.toggleBg }}; flex: none;">
+                        <span style="width: 18px; height: 18px; border-radius: 999px; background: #FFFFFF; display: block;"></span>
+                      </button>
+                      <span style="font-size: 12.5px; font-weight: 600; color: {{ u.stateFg }};">{{ u.stateLabel }}</span>
+                    </div>
+                  </td>
+                  <td style="padding: 14px 24px 14px 14px; text-align: right;">
+                    <button type="button" onClick="{{ u.remove }}" title="Remove user" style="border: 1px solid #EFCBCB; background: #FFFFFF; color: #B23A3A; border-radius: 9px; width: 30px; height: 30px; font-size: 14px; cursor: pointer;" style-hover="background: #FBE3E3;">×</button>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 13px 24px; border-top: 1px solid #EDE8DC; background: #FCFBF7; font-size: 12.5px; color: #7C8492;">{{ userSummary }}</div>
+      </section>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showFocalPerson&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Department cards&quot;}}">
+const TAGS = {
+  Protection: { bg: "#EAE7FA", fg: "#4B47A8" },
+  Services: { bg: "#E2ECF7", fg: "#2C6395" },
+  Enforcement: { bg: "#FBE3E3", fg: "#B23A3A" },
+  Welfare: { bg: "#E1EFE0", fg: "#3A6B39" },
+  Civic: { bg: "#FBEBD3", fg: "#9A6A1E" }
+};
+
+const DEPARTMENTS = [
+  { name: "Child Protection", tag: "Protection", users: 5, open: 12, focal: "Focal person: Deputy Director, Child Protection Unit" },
+  { name: "Health", tag: "Services", users: 8, open: 24, focal: "Focal person: District Health Officer" },
+  { name: "Police", tag: "Enforcement", users: 6, open: 19, focal: "Focal person: SDPO, District Liaison" },
+  { name: "Women Protection", tag: "Protection", users: 4, open: 9, focal: "Focal person: Incharge, Women Protection Cell" },
+  { name: "Social Welfare", tag: "Welfare", users: 7, open: 16, focal: "Focal person: Social Welfare Officer" },
+  { name: "Local Government", tag: "Civic", users: 9, open: 31, focal: "Focal person: Municipal Commissioner (Admin)" },
+  { name: "Youth Affairs", tag: "Welfare", users: 3, open: 4, focal: "Focal person: Assistant Director, Youth Affairs" },
+  { name: "Education", tag: "Services", users: 6, open: 14, focal: "Focal person: Taluka Education Officer" },
+  { name: "Disability Welfare", tag: "Welfare", users: 3, open: 7, focal: "Focal person: Assistant Director, Special Education" }
+];
+
+const USERS = {
+  "Child Protection": [
+    { name: "Rukhsana Memon", designation: "Deputy Director", email: "r.memon@cpu.sindh.gov.pk", role: "Department Admin", active: true },
+    { name: "Waqar Ahmed Shar", designation: "Protection Officer", email: "w.shar@cpu.sindh.gov.pk", role: "Department User", active: true },
+    { name: "Sana Qureshi", designation: "Case Worker", email: "s.qureshi@cpu.sindh.gov.pk", role: "Department User", active: true },
+    { name: "Imran Baloch", designation: "Field Officer", email: "i.baloch@cpu.sindh.gov.pk", role: "Department User", active: false },
+    { name: "Nadia Soomro", designation: "Data Entry Operator", email: "n.soomro@cpu.sindh.gov.pk", role: "Department User", active: true }
+  ],
+  "Health": [
+    { name: "Dr. Aftab Hussain", designation: "District Health Officer", email: "dho.jamshoro@health.sindh.gov.pk", role: "Department Admin", active: true },
+    { name: "Dr. Shaista Panhwar", designation: "Medical Superintendent", email: "s.panhwar@health.sindh.gov.pk", role: "Department Admin", active: true },
+    { name: "Yasir Lashari", designation: "Health Coordinator", email: "y.lashari@health.sindh.gov.pk", role: "Department User", active: true },
+    { name: "Kausar Bibi", designation: "LHW Supervisor", email: "k.bibi@health.sindh.gov.pk", role: "Department User", active: false }
+  ],
+  "Police": [
+    { name: "SDPO Rafiq Ahmed", designation: "Sub-Divisional Police Officer", email: "sdpo.kotri@police.sindh.gov.pk", role: "Department Admin", active: true },
+    { name: "SIP Nasir Jokhio", designation: "Station Investigation", email: "n.jokhio@police.sindh.gov.pk", role: "Department User", active: true },
+    { name: "ASI Ghulam Ali", designation: "Complaint Cell", email: "g.ali@police.sindh.gov.pk", role: "Department User", active: true }
+  ]
+};
+
+const FALLBACK = [
+  { name: "Focal Officer", designation: "Department focal person", email: "focal.officer@sindh.gov.pk", role: "Department Admin", active: true },
+  { name: "Assistant Officer", designation: "Case handling", email: "assistant.officer@sindh.gov.pk", role: "Department User", active: true },
+  { name: "Record Keeper", designation: "Registry", email: "record.keeper@sindh.gov.pk", role: "Department User", active: false }
+];
+
+class Component extends DCLogic {
+  state = { activeDept: null, overrides: {}, removed: {}, now: new Date() };
+
+  componentDidMount() { this._t = setInterval(() => this.setState({ now: new Date() }), 30000); }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  baseUsers(dept) { return USERS[dept] || FALLBACK; }
+
+  renderVals() {
+    const activeName = this.state.activeDept;
+    const activeDef = DEPARTMENTS.find(d => d.name === activeName);
+    const rows = activeDef ? this.baseUsers(activeName).filter(u => !this.state.removed[activeName + "|" + u.email]) : [];
+
+    const users = rows.map((u, i) => {
+      const key = activeName + "|" + u.email;
+      const active = this.state.overrides[key] ?? u.active;
+      return {
+        name: u.name, designation: u.designation, email: u.email, role: u.role,
+        roleBg: u.role === "Department Admin" ? "#E4F0EB" : "#EFEDE6",
+        roleFg: u.role === "Department Admin" ? "#2F7D6B" : "#6E7784",
+        rowBg: i % 2 ? "#FDFCF9" : "#FFFFFF",
+        toggleBg: active ? "#2F7D6B" : "#D6CFBE",
+        justify: active ? "flex-end" : "flex-start",
+        stateLabel: active ? "Active" : "Inactive",
+        stateFg: active ? "#3A6B39" : "#8A9099",
+        toggle: () => this.setState(s => ({ overrides: Object.assign({}, s.overrides, { [key]: !active }) })),
+        remove: () => this.setState(s => ({ removed: Object.assign({}, s.removed, { [key]: true }) }))
+      };
+    });
+
+    return {
+      nowLabel: this.state.now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) + ", " +
+        this.state.now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " PKT",
+      departments: DEPARTMENTS.map(d => {
+        const t = TAGS[d.tag];
+        const count = this.baseUsers(d.name).filter(u => !this.state.removed[d.name + "|" + u.email]).length;
+        return {
+          name: d.name, tag: d.tag, tagBg: t.bg, tagFg: t.fg,
+          userLabel: count + (count === 1 ? " user" : " users"),
+          openCases: d.open + " open cases",
+          focal: this.props.showFocalPerson === false ? "" : d.focal,
+          border: d.name === activeName ? "#2F7D6B" : "#E7E2D6",
+          manage: () => this.setState({ activeDept: d.name })
+        };
+      }),
+      active: activeDef ? { name: activeName } : null,
+      users,
+      userSummary: users.length
+        ? users.filter(u => u.stateLabel === "Active").length + " of " + users.length + " users active · roles are set by the AC office"
+        : "No users remain in this department. Add a focal person to receive referrals.",
+      closePanel: () => this.setState({ activeDept: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

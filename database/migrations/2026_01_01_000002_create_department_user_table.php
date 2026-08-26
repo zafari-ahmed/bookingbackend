@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('department_user', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->boolean('is_primary')->default(false);
+            $table->timestamp('created_at')->nullable();
+
+            // Access is queried in both directions: "departments this user can see"
+            // and "users belonging to this department".
+            $table->unique(['user_id', 'department_id']);
+            $table->index('department_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('department_user');
+    }
+};

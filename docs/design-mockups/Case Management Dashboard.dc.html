@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #F7F5EF; }
+  body { font-family: "Public Sans", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1F5C7A; text-decoration: none; }
+  a:hover { color: #132A45; text-decoration: underline; }
+  input[type="checkbox"] { accent-color: #2F7D6B; }
+  ::placeholder { color: #9B968A; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #F7F5EF; color: #23303C; font-family: 'Public Sans', Helvetica, Arial, sans-serif;">
+
+  <header style="background: #132A45; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 42px; height: 42px; border-radius: 999px; background: #2F7D6B; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.04em; flex: none;">DC</div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA8B8;">Government of Sindh</div>
+        <div style="font-size: 20px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;">District Coordination — Case Management System</div>
+        <div style="font-size: 12.5px; color: #B8C4D0;">Office of the Assistant Commissioner · Public Grievance &amp; Referral Desk</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="font-size: 11.5px; color: #92A0B0; text-align: right; line-height: 1.4;">As of {{ nowLabel }}</div>
+      <button type="button" style="background: #FFFFFF; color: #132A45; border: none; border-radius: 10px; padding: 11px 20px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #E8EEF4;">+ New Case</button>
+    </div>
+  </header>
+
+  <main style="max-width: 1560px; margin: 0 auto; padding: 26px 32px 56px;">
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D6; border-radius: 14px; padding: 20px 22px;">
+        <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #6E7784;">Total Cases</div>
+        <div style="font-size: 40px; font-weight: 800; letter-spacing: -0.03em; margin-top: 8px; color: #132A45;">{{ statTotal }}</div>
+      </div>
+      <div style="background: #FBEBD3; border: 1px solid #EFDCBE; border-radius: 14px; padding: 20px 22px; color: #9A6A1E;">
+        <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;">Pending</div>
+        <div style="font-size: 40px; font-weight: 800; letter-spacing: -0.03em; margin-top: 8px;">{{ statPending }}</div>
+      </div>
+      <div style="background: #E1EFE0; border: 1px solid #CDE2CB; border-radius: 14px; padding: 20px 22px; color: #3A6B39;">
+        <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;">Resolved</div>
+        <div style="font-size: 40px; font-weight: 800; letter-spacing: -0.03em; margin-top: 8px;">{{ statResolved }}</div>
+      </div>
+      <div style="background: #FBE3E3; border: 1px solid #EFCBCB; border-radius: 14px; padding: 20px 22px; color: #B23A3A;">
+        <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;">Overdue 15+ Days</div>
+        <div style="font-size: 40px; font-weight: 800; letter-spacing: -0.03em; margin-top: 8px;">{{ statOverdue }}</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin: 24px 0 14px;">
+      <label style="display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 500; color: #3D4854; cursor: pointer;">
+        <input type="checkbox" checked="{{ highOnly }}" onChange="{{ toggleHighOnly }}" style="width: 16px; height: 16px; cursor: pointer;" />
+        Show only high-priority cases
+      </label>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <input type="text" placeholder="Search by name, case ID, or issue" value="{{ query }}" onChange="{{ onQuery }}" style="width: 290px; background: #FFFFFF; border: 1px solid #E0DACC; border-radius: 999px; padding: 10px 16px; font-family: inherit; font-size: 13px; color: #23303C; outline: none;" style-focus="border-color: #2F7D6B;" />
+        <select value="{{ dept }}" onChange="{{ onDept }}" style="background: #FFFFFF; border: 1px solid #E0DACC; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 13px; color: #23303C; cursor: pointer; outline: none;">
+          <sc-for list="{{ deptOptions }}" as="opt" hint-placeholder-count="3">
+            <option value="{{ opt }}">{{ opt }}</option>
+          </sc-for>
+        </select>
+        <select value="{{ status }}" onChange="{{ onStatus }}" style="background: #FFFFFF; border: 1px solid #E0DACC; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 13px; color: #23303C; cursor: pointer; outline: none;">
+          <sc-for list="{{ statusOptions }}" as="opt" hint-placeholder-count="3">
+            <option value="{{ opt }}">{{ opt }}</option>
+          </sc-for>
+        </select>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #E7E2D6; border-radius: 14px; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1360px;">
+          <thead>
+            <tr style="background: #FCFBF7;">
+              <th style="text-align: left; padding: 13px 14px 13px 20px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">SR</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">Date &amp; Time</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">Complainant Name</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC;">Address</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">Phone</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC;">Issue</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC;">Department</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC;">Assigned / Referred To</th>
+              <th style="text-align: left; padding: 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">Priority</th>
+              <th style="text-align: left; padding: 13px 20px 13px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7C8492; border-bottom: 1px solid #EDE8DC; white-space: nowrap;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ pageRows }}" as="row" hint-placeholder-count="8">
+              <tr onClick="{{ row.open }}" style="cursor: pointer; border-bottom: 1px solid #F1EDE2; background: {{ row.rowBg }};" style-hover="background: #F6F4EC;">
+                <td style="padding: 14px 14px 14px 20px; color: #8A9099; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap;">{{ row.sr }}</td>
+                <td style="padding: 14px; color: #4A545F; white-space: nowrap; line-height: 1.35;">{{ row.date }}<br /><span style="color: #949AA2; font-size: 12px;">{{ row.time }}</span></td>
+                <td style="padding: 14px; font-weight: 600; color: #1D2A36; white-space: nowrap;">{{ row.name }}<br /><span style="font-weight: 400; color: #949AA2; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;">{{ row.id }}</span></td>
+                <td style="padding: 14px; color: #545E69; max-width: 190px; line-height: 1.4;">{{ row.address }}</td>
+                <td style="padding: 14px; color: #545E69; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap;">{{ row.phone }}</td>
+                <td style="padding: 14px; color: #2C3742; max-width: 230px; line-height: 1.4;">{{ row.issue }}</td>
+                <td style="padding: 14px; color: #545E69; max-width: 150px; line-height: 1.4;">{{ row.dept }}</td>
+                <td style="padding: 14px; color: #545E69; max-width: 170px; line-height: 1.4;">{{ row.assignee }}</td>
+                <td style="padding: 14px; white-space: nowrap;">
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: {{ row.prioFg }};">
+                    <span style="width: 7px; height: 7px; border-radius: 999px; background: {{ row.prioFg }};"></span>{{ row.priority }}
+                  </span>
+                </td>
+                <td style="padding: 14px 20px 14px 14px; white-space: nowrap;">
+                  <span style="display: inline-block; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: {{ row.statusBg }}; color: {{ row.statusFg }};">{{ row.status }}</span>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-top: 1px solid #EDE8DC; background: #FCFBF7; flex-wrap: wrap;">
+        <div style="font-size: 12.5px; color: #7C8492;">{{ rangeLabel }}</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" onClick="{{ prevPage }}" style="background: #FFFFFF; border: 1px solid #E0DACC; border-radius: 10px; padding: 7px 14px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #3D4854; cursor: pointer;" style-hover="border-color: #132A45;">Previous</button>
+          <div style="font-size: 12.5px; color: #3D4854; padding: 0 6px; font-weight: 600;">{{ pageLabel }}</div>
+          <button type="button" onClick="{{ nextPage }}" style="background: #FFFFFF; border: 1px solid #E0DACC; border-radius: 10px; padding: 7px 14px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #3D4854; cursor: pointer;" style-hover="border-color: #132A45;">Next</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <sc-if value="{{ selected }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDetail }}" style="position: fixed; inset: 0; background: rgba(19, 42, 69, 0.28); display: flex; justify-content: flex-end; z-index: 40;">
+      <aside onClick="{{ stop }}" style="width: 430px; max-width: 92vw; height: 100%; background: #FFFFFF; border-left: 1px solid #E7E2D6; overflow-y: auto; padding: 26px 28px 40px;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A9099;">{{ selected.id }}</div>
+            <div style="font-size: 21px; font-weight: 700; color: #132A45; margin-top: 4px; letter-spacing: -0.01em;">{{ selected.name }}</div>
+          </div>
+          <button type="button" onClick="{{ closeDetail }}" style="background: #F4F2EA; border: none; border-radius: 10px; width: 32px; height: 32px; font-size: 16px; color: #5A6470; cursor: pointer; flex: none;" style-hover="background: #E8E5DB;">×</button>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 14px;">
+          <span style="display: inline-block; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: {{ selected.statusBg }}; color: {{ selected.statusFg }};">{{ selected.status }}</span>
+          <span style="display: inline-block; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: #F4F2EA; color: {{ selected.prioFg }};">{{ selected.priority }} priority</span>
+        </div>
+        <div style="display: grid; gap: 16px; margin-top: 24px;">
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Issue</div><div style="font-size: 14px; color: #23303C; line-height: 1.5;">{{ selected.issue }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Address</div><div style="font-size: 14px; color: #23303C; line-height: 1.5;">{{ selected.address }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Phone</div><div style="font-size: 14px; color: #23303C; font-family: 'IBM Plex Mono', monospace;">{{ selected.phone }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Department</div><div style="font-size: 14px; color: #23303C;">{{ selected.dept }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Assigned / Referred To</div><div style="font-size: 14px; color: #23303C;">{{ selected.assignee }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Received</div><div style="font-size: 14px; color: #23303C;">{{ selected.received }}</div></div>
+          <div style="display: grid; gap: 4px;"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8A9099;">Days open</div><div style="font-size: 14px; color: #23303C;">{{ selected.daysLabel }}</div></div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 28px;">
+          <button type="button" style="flex: 1; background: #132A45; color: #FFFFFF; border: none; border-radius: 10px; padding: 12px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;" style-hover="background: #1C3A5C;">Update status</button>
+          <button type="button" style="flex: 1; background: #FFFFFF; color: #2F7D6B; border: 1px solid #C7DED6; border-radius: 10px; padding: 12px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;" style-hover="background: #F1F8F5;">Refer onward</button>
+        </div>
+      </aside>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;rowsPerPage&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:8,&quot;min&quot;:4,&quot;max&quot;:22,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Table&quot;},&quot;zebraRows&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Table&quot;},&quot;enableDetailPanel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+const STATUS_STYLE = {
+  "Escalated": { bg: "#FBE3E3", fg: "#B23A3A" },
+  "Resolved": { bg: "#E1EFE0", fg: "#3A6B39" },
+  "In Progress": { bg: "#EAE7FA", fg: "#4B47A8" },
+  "Closed": { bg: "#EFEDE6", fg: "#6E7784" },
+  "Referred": { bg: "#E2ECF7", fg: "#2C6395" }
+};
+const PRIO_FG = { High: "#B23A3A", Medium: "#9A6A1E", Normal: "#6E7784" };
+
+const CASES = [
+  { id: "AC-2026-0412", date: "24 Aug 2026", time: "09:14 AM", name: "Ghulam Qadir Bhutto", address: "House 44, Gulshan-e-Iqbal Block 6, Karachi East", phone: "0301-2245781", issue: "No municipal water supply in the lane for 11 days", dept: "Water & Sewerage Board", assignee: "XEN Water, Sub-Div II", priority: "High", status: "Escalated", days: 11 },
+  { id: "AC-2026-0411", date: "24 Aug 2026", time: "10:02 AM", name: "Sassui Memon", address: "Plot 12-C, Latifabad Unit 9, Hyderabad", phone: "0333-8891204", issue: "Encroachment on public footpath by shop extensions", dept: "Municipal Corporation", assignee: "Anti-Encroachment Cell", priority: "Medium", status: "In Progress", days: 6 },
+  { id: "AC-2026-0410", date: "23 Aug 2026", time: "11:47 AM", name: "Abdul Rasheed Chandio", address: "Village Bakhshapur, Taluka Kotri", phone: "0345-4410932", issue: "Boundary dispute over 3 acres of agricultural land", dept: "Revenue (Mukhtiarkar)", assignee: "Mukhtiarkar Kotri", priority: "High", status: "Referred", days: 19 },
+  { id: "AC-2026-0409", date: "23 Aug 2026", time: "01:20 PM", name: "Nasreen Shaikh", address: "Flat 302, Qasimabad Housing Scheme", phone: "0311-7702165", issue: "Domicile certificate application pending beyond 30 days", dept: "AC Office — Certificates", assignee: "Head Clerk, Certificate Branch", priority: "Normal", status: "Resolved", days: 3 },
+  { id: "AC-2026-0408", date: "22 Aug 2026", time: "08:55 AM", name: "Muhammad Younus Khaskheli", address: "Ward 4, Tando Jam Municipal Committee", phone: "0300-3364871", issue: "Overflowing sewerage outside primary school gate", dept: "Water & Sewerage Board", assignee: "AEN Sewerage, Tando Jam", priority: "High", status: "In Progress", days: 8 },
+  { id: "AC-2026-0407", date: "22 Aug 2026", time: "12:31 PM", name: "Zarina Bibi Solangi", address: "Goth Allah Dino, Deh Manjhand", phone: "0347-2298440", issue: "BISP payment not received for three consecutive quarters", dept: "Social Welfare", assignee: "Social Welfare Officer", priority: "Medium", status: "Referred", days: 22 },
+  { id: "AC-2026-0406", date: "21 Aug 2026", time: "10:08 AM", name: "Imtiaz Ali Jokhio", address: "Sector 5-A, New Sabzi Mandi Road", phone: "0322-9047713", issue: "Overcharging of wheat flour above notified rate", dept: "Food & Price Control", assignee: "Price Magistrate, Zone II", priority: "High", status: "Escalated", days: 4 },
+  { id: "AC-2026-0405", date: "21 Aug 2026", time: "02:45 PM", name: "Farhan Ahmed Rajput", address: "Street 7, Hussainabad, Hyderabad", phone: "0332-1145098", issue: "Streetlights non-functional on main approach road", dept: "Municipal Corporation", assignee: "Electric Section, MC", priority: "Normal", status: "Closed", days: 27 },
+  { id: "AC-2026-0404", date: "20 Aug 2026", time: "09:37 AM", name: "Hameeda Khatoon", address: "Quarter 18, Railway Colony, Kotri", phone: "0313-5528601", issue: "Illegal water hydrant operating near residential block", dept: "Water & Sewerage Board", assignee: "XEN Water, Sub-Div I", priority: "High", status: "In Progress", days: 16 },
+  { id: "AC-2026-0403", date: "20 Aug 2026", time: "03:12 PM", name: "Shahnawaz Lashari", address: "Deh Bholari, Taluka Thano Bula Khan", phone: "0308-6673329", issue: "Request for issuance of duplicate land record (Form VII-B)", dept: "Revenue (Mukhtiarkar)", assignee: "Tapedar, Circle 3", priority: "Normal", status: "Resolved", days: 5 },
+  { id: "AC-2026-0402", date: "19 Aug 2026", time: "11:05 AM", name: "Rukhsana Parveen", address: "House 9, Preetabad, Hyderabad", phone: "0336-4471200", issue: "Teacher absenteeism reported at Govt Girls Primary School", dept: "Education", assignee: "Taluka Education Officer", priority: "Medium", status: "Escalated", days: 18 },
+  { id: "AC-2026-0401", date: "19 Aug 2026", time: "04:26 PM", name: "Ali Nawaz Panhwar", address: "Main Bazaar, Matiari town", phone: "0345-9903318", issue: "Sanitary staff not visiting the ward for garbage lifting", dept: "Municipal Corporation", assignee: "Sanitary Inspector, Ward 6", priority: "Normal", status: "In Progress", days: 9 },
+  { id: "AC-2026-0400", date: "18 Aug 2026", time: "10:44 AM", name: "Bilquis Sultana", address: "Flat 7-B, Cantt Area, Hyderabad", phone: "0300-8812470", issue: "Ambulance service unavailable at Rural Health Centre", dept: "Health", assignee: "District Health Officer", priority: "High", status: "Referred", days: 12 },
+  { id: "AC-2026-0399", date: "18 Aug 2026", time: "01:58 PM", name: "Sikandar Ali Mallah", address: "Fisherfolk Colony, Keti Bunder", phone: "0342-3390076", issue: "Fishing licence renewal blocked without stated reason", dept: "Fisheries", assignee: "Assistant Director Fisheries", priority: "Medium", status: "Closed", days: 31 },
+  { id: "AC-2026-0398", date: "17 Aug 2026", time: "09:21 AM", name: "Naseem Akhtar Junejo", address: "Plot 21, Phase 2, Sindh Housing Scheme", phone: "0331-7745512", issue: "NOC delay for construction of boundary wall", dept: "AC Office — Certificates", assignee: "Assistant Commissioner (Rev.)", priority: "Normal", status: "In Progress", days: 7 },
+  { id: "AC-2026-0397", date: "17 Aug 2026", time: "03:33 PM", name: "Hafeez Ullah Brohi", address: "Goth Wahid Bux, Deh Jhimpir", phone: "0349-2216604", issue: "Tube well transformer burnt, irrigation halted", dept: "Irrigation", assignee: "SDO Irrigation, Jhimpir", priority: "High", status: "Escalated", days: 21 },
+  { id: "AC-2026-0396", date: "16 Aug 2026", time: "10:16 AM", name: "Sameena Qureshi", address: "House 3, Tando Adam Road", phone: "0334-5580931", issue: "Ration distribution list excludes eligible households", dept: "Food & Price Control", assignee: "Food Inspector, Zone I", priority: "Medium", status: "Resolved", days: 4 },
+  { id: "AC-2026-0395", date: "16 Aug 2026", time: "12:49 PM", name: "Ayaz Hussain Abro", address: "Ward 2, Saeedabad Town Committee", phone: "0306-1123840", issue: "Stray dog menace near community park", dept: "Municipal Corporation", assignee: "Health Officer, TC Saeedabad", priority: "Normal", status: "Closed", days: 24 },
+  { id: "AC-2026-0394", date: "15 Aug 2026", time: "09:02 AM", name: "Kaneez Fatima", address: "Quarter 5, Employees Colony, Kotri", phone: "0321-6690214", issue: "Widow pension file lost at treasury office", dept: "Social Welfare", assignee: "District Accounts Officer", priority: "High", status: "Referred", days: 17 },
+  { id: "AC-2026-0393", date: "15 Aug 2026", time: "02:07 PM", name: "Raheem Bux Sheikh", address: "Shop 14, Anaj Mandi, Hyderabad", phone: "0335-4402198", issue: "Trade licence renewal fee receipt not issued", dept: "Municipal Corporation", assignee: "Licence Branch, MC", priority: "Normal", status: "Resolved", days: 2 },
+  { id: "AC-2026-0392", date: "14 Aug 2026", time: "11:38 AM", name: "Gulzar Ahmed Memon", address: "Bungalow 6, Hirabad, Hyderabad", phone: "0300-9971245", issue: "Illegal commercial use of residential plot", dept: "Revenue (Mukhtiarkar)", assignee: "Mukhtiarkar City", priority: "Medium", status: "In Progress", days: 13 },
+  { id: "AC-2026-0391", date: "14 Aug 2026", time: "04:51 PM", name: "Shabana Talpur", address: "House 27, Unit 6, Latifabad", phone: "0337-2204471", issue: "Request for police protection in harassment matter", dept: "Home / Police Liaison", assignee: "SHO, Latifabad Division", priority: "High", status: "Escalated", days: 3 }
+];
+
+class Component extends DCLogic {
+  state = { query: "", dept: "All departments", status: "All statuses", highOnly: false, page: 1, selectedId: null, now: new Date() };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState({ now: new Date() }), 30000);
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  decorate(c) {
+    const s = STATUS_STYLE[c.status] || STATUS_STYLE.Closed;
+    return Object.assign({}, c, {
+      statusBg: s.bg, statusFg: s.fg,
+      prioFg: PRIO_FG[c.priority] || PRIO_FG.Normal,
+      received: c.date + " · " + c.time,
+      daysLabel: c.days + (c.days === 1 ? " day" : " days") + (c.days >= 15 ? " — overdue" : "")
+    });
+  }
+
+  filtered() {
+    const q = this.state.query.trim().toLowerCase();
+    return CASES.filter(c => {
+      if (this.state.highOnly && c.priority !== "High") return false;
+      if (this.state.dept !== "All departments" && c.dept !== this.state.dept) return false;
+      if (this.state.status !== "All statuses" && c.status !== this.state.status) return false;
+      if (!q) return true;
+      return (c.name + " " + c.id + " " + c.issue + " " + c.dept + " " + c.assignee).toLowerCase().includes(q);
+    });
+  }
+
+  set(patch) { this.setState(Object.assign({ page: 1 }, patch)); }
+
+  renderVals() {
+    const perPage = Math.max(4, this.props.rowsPerPage ?? 8);
+    const rows = this.filtered();
+    const pages = Math.max(1, Math.ceil(rows.length / perPage));
+    const page = Math.min(this.state.page, pages);
+    const start = (page - 1) * perPage;
+    const slice = rows.slice(start, start + perPage);
+    const selectedRaw = CASES.find(c => c.id === this.state.selectedId);
+
+    const now = this.state.now;
+    const nowLabel = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) + ", " +
+      now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " PKT";
+
+    return {
+      nowLabel,
+      statTotal: CASES.length,
+      statPending: CASES.filter(c => c.status === "In Progress" || c.status === "Referred" || c.status === "Escalated").length,
+      statResolved: CASES.filter(c => c.status === "Resolved").length,
+      statOverdue: CASES.filter(c => c.days >= 15).length,
+      query: this.state.query,
+      dept: this.state.dept,
+      status: this.state.status,
+      highOnly: this.state.highOnly,
+      deptOptions: ["All departments"].concat(Array.from(new Set(CASES.map(c => c.dept))).sort()),
+      statusOptions: ["All statuses", "Escalated", "In Progress", "Referred", "Resolved", "Closed"],
+      onQuery: e => this.set({ query: e.target.value }),
+      onDept: e => this.set({ dept: e.target.value }),
+      onStatus: e => this.set({ status: e.target.value }),
+      toggleHighOnly: e => this.set({ highOnly: e.target.checked }),
+      pageRows: slice.map((c, i) => Object.assign(this.decorate(c), {
+        sr: String(start + i + 1).padStart(2, "0"),
+        rowBg: this.props.zebraRows === false ? "#FFFFFF" : (i % 2 ? "#FDFCF9" : "#FFFFFF"),
+        open: () => this.setState({ selectedId: c.id })
+      })),
+      rangeLabel: rows.length ? "Showing " + (start + 1) + "–" + Math.min(start + perPage, rows.length) + " of " + rows.length + " cases" : "No cases match the current filters",
+      pageLabel: "Page " + page + " of " + pages,
+      prevPage: () => this.setState(s => ({ page: Math.max(1, s.page - 1) })),
+      nextPage: () => this.setState(s => ({ page: Math.min(pages, s.page + 1) })),
+      selected: this.props.enableDetailPanel === false ? null : (selectedRaw ? this.decorate(selectedRaw) : null),
+      closeDetail: () => this.setState({ selectedId: null }),
+      stop: e => e.stopPropagation()
+    };
+  }
+}
+</script>
+</body>
+</html>

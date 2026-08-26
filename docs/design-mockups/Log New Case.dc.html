@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #F7F5EF; }
+  body { font-family: "Public Sans", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1F5C7A; text-decoration: none; }
+  a:hover { color: #132A45; text-decoration: underline; }
+  ::placeholder { color: #A8A297; }
+  @media (max-width: 760px) { .om-grid { grid-template-columns: minmax(0, 1fr) !important; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #F7F5EF; color: #23303C; font-family: 'Public Sans', Helvetica, Arial, sans-serif;">
+
+  <header style="background: #132A45; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 42px; height: 42px; border-radius: 999px; background: #2F7D6B; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.04em; flex: none;">DC</div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA8B8;">Government of Sindh</div>
+        <div style="font-size: 20px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;">District Coordination — Case Management System</div>
+        <div style="font-size: 12.5px; color: #B8C4D0;">Office of the Assistant Commissioner · Public Grievance &amp; Referral Desk</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="font-size: 11.5px; color: #92A0B0; text-align: right; line-height: 1.4;">As of {{ nowLabel }}</div>
+    </div>
+  </header>
+
+  <main style="max-width: 980px; margin: 0 auto; padding: 22px 32px 64px;">
+
+    <a href="Case Management Dashboard.dc.html" style="display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #1F5C7A;">← Back to Dashboard</a>
+
+    <h1 style="font-size: 30px; font-weight: 800; letter-spacing: -0.025em; color: #132A45; margin: 18px 0 6px;">Log New Case</h1>
+    <p style="font-size: 14.5px; color: #6E7784; margin: 0; max-width: 620px; line-height: 1.5;">This case will be sent to the AC office for review and department assignment.</p>
+
+    <sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; align-items: flex-start; gap: 12px; background: #EAF1F7; border: 1px solid #D3E1EC; border-radius: 12px; padding: 14px 16px; margin: 22px 0 20px;">
+        <div style="width: 20px; height: 20px; border-radius: 999px; background: #2C6395; color: #fff; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 1px;">i</div>
+        <div style="font-size: 13.5px; color: #2A4A63; line-height: 1.5;">Once submitted, the AC office will be notified instantly and will assign this case to the relevant department.</div>
+      </div>
+    </sc-if>
+
+    <div style="background: #FFFFFF; border: 1px solid #E7E2D6; border-radius: 14px; padding: 30px 32px 26px;">
+
+      <div class="om-grid" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px;">
+
+        <div style="display: grid; gap: 7px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Complainant Full Name <span style="color: #B23A3A;">*</span></label>
+          <input type="text" placeholder="e.g. Ghulam Qadir Bhutto" style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 14px; color: #23303C; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #2F7D6B; background: #FFFFFF;" />
+        </div>
+
+        <div style="display: grid; gap: 7px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">CNIC Number <span style="color: #B23A3A;">{{ cnicMark }}</span></label>
+          <input type="text" placeholder="00000-0000000-0" style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: #23303C; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #2F7D6B; background: #FFFFFF;" />
+        </div>
+
+        <div style="display: grid; gap: 7px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Phone Number <span style="color: #B23A3A;">*</span></label>
+          <input type="text" placeholder="0300-0000000" style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: #23303C; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #2F7D6B; background: #FFFFFF;" />
+        </div>
+
+        <div style="display: grid; gap: 7px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Department <span style="color: #B23A3A;">*</span></label>
+          <select style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 14px; color: #23303C; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;" style-focus="border-color: #2F7D6B; background: #FFFFFF;">
+            <option value="">Select a department</option>
+            <option value="Child Protection">Child Protection</option>
+            <option value="Health">Health</option>
+            <option value="Police">Police</option>
+            <option value="Women Protection">Women Protection</option>
+            <option value="Social Welfare">Social Welfare</option>
+            <option value="Local Government">Local Government</option>
+            <option value="Youth Affairs">Youth Affairs</option>
+            <option value="Education">Education</option>
+            <option value="Disability Welfare">Disability Welfare</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div style="display: grid; gap: 7px; grid-column: 1 / -1;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Address</label>
+          <textarea rows="3" placeholder="House / plot number, street, area, taluka, district" style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 14px; color: #23303C; outline: none; width: 100%; box-sizing: border-box; resize: vertical; line-height: 1.5;" style-focus="border-color: #2F7D6B; background: #FFFFFF;"></textarea>
+        </div>
+
+        <div style="display: grid; gap: 7px; grid-column: 1 / -1;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Issue / Complaint Summary <span style="color: #B23A3A;">*</span></label>
+          <textarea rows="5" placeholder="Describe the complaint in plain language — what happened, since when, and what action is being requested." style="background: #FCFBF7; border: 1px solid #E0DACC; border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 14px; color: #23303C; outline: none; width: 100%; box-sizing: border-box; resize: vertical; line-height: 1.55;" style-focus="border-color: #2F7D6B; background: #FFFFFF;"></textarea>
+          <div style="font-size: 12px; color: #949AA2;">Avoid abbreviations. This text appears in the AC office case register.</div>
+        </div>
+
+        <div style="display: grid; gap: 8px; grid-column: 1 / -1;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Priority</label>
+          <div style="display: inline-flex; gap: 6px; background: #F4F2EA; border: 1px solid #E7E2D6; border-radius: 12px; padding: 5px; width: fit-content;">
+            <sc-for list="{{ priorityOptions }}" as="opt" hint-placeholder-count="3">
+              <button type="button" onClick="{{ opt.select }}" style="border: none; border-radius: 9px; padding: 9px 24px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; background: {{ opt.bg }}; color: {{ opt.fg }};">{{ opt.label }}</button>
+            </sc-for>
+          </div>
+          <div style="font-size: 12px; color: #949AA2;">{{ priorityHint }}</div>
+        </div>
+
+        <div style="display: grid; gap: 8px; grid-column: 1 / -1;">
+          <label style="font-size: 12.5px; font-weight: 700; color: #3D4854;">Attachments</label>
+          <label onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1.5px dashed {{ dropBorder }}; background: {{ dropBg }}; border-radius: 12px; padding: 28px 20px; cursor: pointer; text-align: center;">
+            <div style="font-size: 14px; font-weight: 700; color: #3D4854;">Drag files here or click to browse</div>
+            <div style="font-size: 12.5px; color: #8A9099;">Photographs, scanned applications or written complaints · PDF, JPG, PNG up to 10 MB each</div>
+            <input type="file" multiple="{{ true }}" onChange="{{ onPick }}" style="display: none;" />
+          </label>
+          <sc-if value="{{ hasFiles }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px;">
+              <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+                <span style="display: inline-flex; align-items: center; gap: 9px; background: #F1F8F5; border: 1px solid #C7DED6; border-radius: 999px; padding: 6px 8px 6px 13px; font-size: 12.5px; font-weight: 600; color: #2A5F52;">
+                  {{ f.name }}<span style="font-weight: 400; color: #6E9A8C;">{{ f.size }}</span>
+                  <button type="button" onClick="{{ f.remove }}" style="border: none; background: #DCEBE5; color: #2A5F52; border-radius: 999px; width: 18px; height: 18px; font-size: 12px; line-height: 1; cursor: pointer;" style-hover="background: #C7DED6;">×</button>
+                </span>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; padding-top: 22px; border-top: 1px solid #F1EDE2;">
+        <button type="button" style="background: #FFFFFF; color: #3D4854; border: 1px solid #DCD6C8; border-radius: 10px; padding: 12px 24px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #F7F5EF; border-color: #C4BDAC;">Cancel</button>
+        <button type="button" onClick="{{ submit }}" style="background: #132A45; color: #FFFFFF; border: none; border-radius: 10px; padding: 12px 28px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #1C3A5C;">Submit Case</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ submitted }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 12px; background: #E1EFE0; border: 1px solid #CDE2CB; border-radius: 12px; padding: 14px 16px; margin-top: 18px;">
+        <div style="width: 20px; height: 20px; border-radius: 999px; background: #3A6B39; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">✓</div>
+        <div style="font-size: 13.5px; color: #2F5A2E; line-height: 1.5;">Case logged and forwarded to the AC office. Reference number {{ refNo }}.</div>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180},&quot;showInfoBanner&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Page&quot;},&quot;requireCnic&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Form&quot;}}">
+const PRIORITIES = [
+  { label: "Normal", bg: "#FFFFFF", fg: "#3D4854", hint: "Routine handling within the standard 15-day window." },
+  { label: "High", bg: "#FBEBD3", fg: "#9A6A1E", hint: "Flagged for departmental follow-up within 72 hours." },
+  { label: "Urgent", bg: "#FBE3E3", fg: "#B23A3A", hint: "Same-day attention required. The AC office is alerted directly." }
+];
+
+class Component extends DCLogic {
+  state = { priority: "Normal", files: [], dragging: false, submitted: false, now: new Date() };
+
+  componentDidMount() { this._t = setInterval(() => this.setState({ now: new Date() }), 30000); }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  addFiles(list) {
+    const incoming = Array.from(list || []).map(f => ({
+      name: f.name,
+      size: f.size > 1048576 ? (f.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(f.size / 1024)) + " KB"
+    }));
+    if (incoming.length) this.setState(s => ({ files: s.files.concat(incoming), dragging: false }));
+    else this.setState({ dragging: false });
+  }
+
+  renderVals() {
+    const cur = this.state.priority;
+    const active = PRIORITIES.find(p => p.label === cur) || PRIORITIES[0];
+    return {
+      nowLabel: this.state.now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) + ", " +
+        this.state.now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " PKT",
+      priorityOptions: PRIORITIES.map(p => ({
+        label: p.label,
+        bg: p.label === cur ? p.bg : "transparent",
+        fg: p.label === cur ? p.fg : "#7C8492",
+        select: () => this.setState({ priority: p.label })
+      })),
+      priorityHint: active.hint,
+      showBanner: this.props.showInfoBanner !== false,
+      cnicMark: this.props.requireCnic ? "*" : "",
+      files: this.state.files.map((f, i) => Object.assign({}, f, {
+        remove: e => { e.preventDefault(); this.setState(s => ({ files: s.files.filter((_, j) => j !== i) })); }
+      })),
+      hasFiles: this.state.files.length > 0,
+      dropBorder: this.state.dragging ? "#2F7D6B" : "#D6CFBE",
+      dropBg: this.state.dragging ? "#F1F8F5" : "#FCFBF7",
+      onDragOver: e => { e.preventDefault(); if (!this.state.dragging) this.setState({ dragging: true }); },
+      onDragLeave: e => { e.preventDefault(); this.setState({ dragging: false }); },
+      onDrop: e => { e.preventDefault(); this.addFiles(e.dataTransfer && e.dataTransfer.files); },
+      onPick: e => this.addFiles(e.target.files),
+      submit: () => this.setState({ submitted: true }),
+      submitted: this.state.submitted,
+      refNo: "AC-2026-0413"
+    };
+  }
+}
+</script>
+</body>
+</html>

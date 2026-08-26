@@ -1,0 +1,130 @@
+erDiagram
+    DEPARTMENTS ||--o{ DEPARTMENT_USER : "grants access via"
+    USERS ||--o{ DEPARTMENT_USER : "assigned to (many-to-many)"
+    DEPARTMENTS ||--o{ CASES : "currently assigned to"
+    USERS ||--o{ CASES : "logs (created_by)"
+    CASES ||--o{ CASE_ROUTING : "has routing history"
+    DEPARTMENTS ||--o{ CASE_ROUTING : "routed to/from"
+    USERS ||--o{ CASE_ROUTING : "performs (assigned_by)"
+    CASES ||--o{ CASE_COMMENTS : "has remarks"
+    USERS ||--o{ CASE_COMMENTS : "writes"
+    DEPARTMENTS ||--o{ CASE_COMMENTS : "acting-as department"
+    CASES ||--o{ CASE_ATTACHMENTS : "has files"
+    CASE_COMMENTS ||--o{ CASE_ATTACHMENTS : "attached to (optional)"
+    USERS ||--o{ CASE_ATTACHMENTS : "uploads"
+    CASES ||--o{ CASE_ACTIVITY_LOGS : "has audit trail"
+    USERS ||--o{ CASE_ACTIVITY_LOGS : "triggers"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    CASES ||--o{ NOTIFICATIONS : "relates to"
+
+    DEPARTMENTS {
+        bigint id PK
+        varchar name
+        varchar slug
+        text description
+        varchar color_tag
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    USERS {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar password
+        varchar phone
+        enum role "super_admin, department_admin, department_user"
+        boolean is_active
+        timestamp last_login_at
+        timestamp email_verified_at
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    DEPARTMENT_USER {
+        bigint id PK
+        bigint user_id FK
+        bigint department_id FK
+        boolean is_primary "home department for UI defaults"
+        timestamp created_at
+    }
+
+    CASES {
+        bigint id PK
+        varchar case_number UK
+        varchar complainant_name
+        varchar complainant_cnic
+        varchar complainant_phone
+        text complainant_address
+        text issue_summary
+        bigint department_id FK "current owning department"
+        bigint created_by FK "users.id"
+        enum priority "normal, high, urgent"
+        enum status "pending, assigned, in_progress, escalated, referred, resolved, closed"
+        enum source "staff, mobile_app"
+        timestamp resolved_at
+        timestamp closed_at
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    CASE_ROUTING {
+        bigint id PK
+        bigint case_id FK
+        bigint department_id FK "department this step is for"
+        bigint assigned_by FK "users.id"
+        bigint assigned_to_user_id FK "nullable"
+        enum action "assigned, forwarded, returned, completed"
+        text notes
+        timestamp created_at
+    }
+
+    CASE_COMMENTS {
+        bigint id PK
+        bigint case_id FK
+        bigint user_id FK
+        bigint department_id FK "acting-as department (user-selected if multi-dept)"
+        text comment
+        bigint forwarded_to_department_id FK "nullable"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    CASE_ATTACHMENTS {
+        bigint id PK
+        bigint case_id FK
+        bigint comment_id FK "nullable"
+        bigint uploaded_by FK "users.id"
+        varchar file_name
+        varchar file_path
+        varchar file_type
+        bigint file_size
+        timestamp created_at
+    }
+
+    CASE_ACTIVITY_LOGS {
+        bigint id PK
+        bigint case_id FK
+        bigint user_id FK "nullable for system events"
+        varchar action_type "created, assigned, forwarded, comment_added, status_changed, etc."
+        text description
+        json meta "old_value/new_value"
+        timestamp created_at
+    }
+
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK "recipient"
+        bigint case_id FK "nullable"
+        varchar type "case_assigned, comment_added, escalated, etc."
+        varchar title
+        text message
+        boolean is_read
+        timestamp read_at
+        timestamp created_at
+    }

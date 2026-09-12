@@ -38,22 +38,6 @@ return [
             'report' => false,
         ],
 
-        /*
-         * Case attachments. Rooted outside the web root and deliberately not
-         * served by Laravel's built-in `/storage` route — the only way to read
-         * a file is the policy-checked download route in CaseAttachmentController.
-         *
-         * Swap the driver to "s3" for deployment; nothing else changes.
-         */
-        'private' => [
-            'driver' => 'local',
-            'root' => storage_path('app/private/case-files'),
-            'serve' => false,
-            'visibility' => 'private',
-            'throw' => true,
-            'report' => false,
-        ],
-
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

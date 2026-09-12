@@ -59,10 +59,9 @@ return [
     | Application Timezone
     |--------------------------------------------------------------------------
     |
-    | The AC office works in Pakistan Standard Time. APP_TIMEZONE in .env is
-    | the source of truth so the top-bar clock, overdue windows and activity
-    | timestamps all agree. Do not hardcode UTC here — Laravel 13's default
-    | scaffold does, which is what left the clock five hours behind.
+    | Here you may specify the default timezone for your application, which
+    | will be used by the PHP date and date-time functions. The timezone
+    | is set to "UTC" by default as it is suitable for most use cases.
     |
     */
 

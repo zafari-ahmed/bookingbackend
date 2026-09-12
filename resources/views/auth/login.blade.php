@@ -1,52 +1,50 @@
-<x-layouts::guest title="Sign in">
-    @if (session('status'))
-        <p class="mb-4 rounded-control border border-resolved-text/25 bg-resolved-bg px-3.5 py-2.5 text-xs leading-relaxed text-resolved-text">
-            {{ session('status') }}
-        </p>
-    @endif
-
-    <form method="POST" action="{{ route('login') }}" class="grid gap-4">
-        @csrf
-
-        <div class="grid gap-1.5">
-            <label for="email" class="field-label">Email address</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}"
-                   required autofocus autocomplete="username"
-                   placeholder="name@sindh.gov.pk"
-                   class="field @error('email') border-escalated-text @enderror">
-            @error('email')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div x-data="{ show: false }" class="grid gap-1.5">
-            <label for="password" class="field-label">Password</label>
-            <div class="flex items-center gap-1 rounded-control border border-border bg-surface pl-3.5 pr-1.5 focus-within:border-teal @error('password') border-escalated-text @enderror">
-                <input id="password" :type="show ? 'text' : 'password'" name="password"
-                       required autocomplete="current-password"
-                       placeholder="Enter your password"
-                       class="min-h-11 w-full min-w-0 border-0 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted">
-                <button type="button" @click="show = ! show"
-                        class="shrink-0 rounded-lg px-2.5 py-2 text-xs font-bold text-text-secondary hover:bg-cream"
-                        x-text="show ? 'Hide' : 'Show'"
-                        :aria-label="show ? 'Hide password' : 'Show password'">Show</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in · Sport Avenue Club</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="min-h-screen bg-navy text-white">
+<div class="grid min-h-screen lg:grid-cols-2">
+    <div class="relative hidden overflow-hidden lg:block">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#1d4ed8,transparent_35%),radial-gradient(circle_at_80%_30%,#84cc16,transparent_28%),linear-gradient(160deg,#0b1d36,#122846)]"></div>
+        <div class="relative flex h-full flex-col justify-between p-12">
+            <div class="font-display text-2xl font-extrabold">Sport Avenue Club</div>
+            <div>
+                <div class="font-display text-5xl font-extrabold leading-tight">Book courts.<br>Run the floor.<br>Stay in control.</div>
+                <p class="mt-4 max-w-md text-white/70">A staff-first calendar for padel, pickleball, tennis and every other court in the club.</p>
             </div>
-            @error('password')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-
-            <div class="flex items-center justify-between">
-                <label class="inline-flex items-center gap-2 text-xs text-text-secondary">
-                    <input type="checkbox" name="remember" class="size-4 rounded border-border text-teal focus:ring-teal">
-                    Remember this device
-                </label>
-
-                <a href="{{ route('password.request') }}" class="text-xs font-semibold text-referred-text hover:text-navy">
-                    Forgot password?
-                </a>
+            <div class="text-sm text-white/50">Premium court operations · Karachi</div>
+        </div>
+    </div>
+    <div class="flex items-center justify-center bg-mist px-6 py-12 text-ink">
+        <div class="card w-full max-w-md p-8">
+            <div class="mb-6">
+                <div class="font-display text-2xl font-extrabold text-navy">Welcome back</div>
+                <p class="text-sm text-slate-500">Sign in to manage today’s bookings.</p>
+            </div>
+            <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="mb-1 block text-sm font-semibold">Email</label>
+                    <input class="input" type="email" name="email" value="{{ old('email', 'admin@sportavenue.club') }}" required>
+                    @error('email')<div class="mt-1 text-sm text-red-600">{{ $message }}</div>@enderror
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold">Password</label>
+                    <input class="input" type="password" name="password" value="password" required>
+                </div>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="remember"> Remember me</label>
+                <button class="btn btn-primary w-full">Sign in</button>
+            </form>
+            <div class="mt-6 rounded-2xl bg-mist p-4 text-xs text-slate-500">
+                <div class="font-semibold text-navy">Demo accounts</div>
+                admin / manager / staff @ sportavenue.club · password
             </div>
         </div>
-
-        <button type="submit" class="btn-primary w-full">Sign In</button>
-    </form>
-</x-layouts::guest>
+    </div>
+</div>
+</body>
+</html>

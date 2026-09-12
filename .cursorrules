@@ -1,1 +1,0 @@
-   Always follow docs/database-schema.md for the database structure and docs/design-system.md for all colors, spacing, and layout structure. Do not invent new colors, table columns, or page layouts that contradict these files. When in doubt, check these docs before generating code.

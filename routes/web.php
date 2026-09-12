@@ -1,98 +1,76 @@
 <?php
 
-declare(strict_types=1);
-
-use App\Http\Controllers\CaseAttachmentController;
-use App\Http\Controllers\CaseCommentController;
-use App\Http\Controllers\CaseController;
-use App\Http\Controllers\CaseRoutingController;
+use App\Http\Controllers\Api\CalendarApiController;
+use App\Http\Controllers\Api\MemberApiController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TwoFactorSetupController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SportController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Blade Portal Routes
-|--------------------------------------------------------------------------
-|
-| Session-authenticated through Laravel Fortify. Fortify registers login,
-| logout, password reset, email verification and two-factor challenge routes
-| itself; everything below is the application proper.
-|
-| There is deliberately no routes/api.php — token authentication arrives with
-| the Phase 2 mobile app and will sit against these same models and policies.
-|
-*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+});
 
-Route::redirect('/', '/dashboard')->name('home');
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-Route::middleware(['auth', 'verified', 'active'])->group(function (): void {
-    // Reachable before two-factor enrolment is complete.
-    Route::get('two-factor-setup', TwoFactorSetupController::class)->name('two-factor.setup');
+Route::middleware('auth')->group(function () {
+    Route::get('/', fn () => redirect()->route('dashboard'));
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::middleware('two-factor')->group(function (): void {
-        Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::get('/bookings/quote/amount', [BookingController::class, 'quote'])->name('bookings.quote');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+    Route::post('/bookings/hold', [BookingController::class, 'hold'])->name('bookings.hold');
+    Route::post('/bookings/{booking}/release', [BookingController::class, 'release'])->name('bookings.release');
+    Route::post('/bookings/{booking}/payments', [BookingController::class, 'payment'])->name('bookings.payment');
+    Route::delete('/bookings/{booking}/payments/{payment}', [BookingController::class, 'destroyPayment'])->name('bookings.payments.destroy');
 
-        Route::controller(CaseController::class)->group(function (): void {
-            Route::get('cases', 'index')->name('cases.index');
-            Route::get('cases/create', 'create')->name('cases.create');
-            Route::post('cases', 'store')->name('cases.store');
-            Route::get('cases/{case}', 'show')->name('cases.show');
-            Route::patch('cases/{case}', 'update')->name('cases.update');
-        });
+    Route::get('/members', [MemberController::class, 'index'])->name('members.index');
+    Route::post('/members', [MemberController::class, 'store'])->name('members.store');
+    Route::get('/members/{member}', [MemberController::class, 'show'])->name('members.show');
+    Route::put('/members/{member}', [MemberController::class, 'update'])->name('members.update');
+    Route::delete('/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
 
-        Route::post('cases/{case}/comments', [CaseCommentController::class, 'store'])
-            ->name('cases.comments.store');
+    Route::get('/sports', [SportController::class, 'index'])->name('sports.index');
+    Route::post('/sports', [SportController::class, 'store'])->name('sports.store');
+    Route::put('/sports/{sport}', [SportController::class, 'update'])->name('sports.update');
+    Route::delete('/sports/{sport}', [SportController::class, 'destroy'])->name('sports.destroy');
+    Route::post('/courts', [SportController::class, 'storeCourt'])->name('courts.store');
+    Route::put('/courts/{court}', [SportController::class, 'updateCourt'])->name('courts.update');
+    Route::post('/courts/{court}/toggle', [SportController::class, 'toggleCourt'])->name('courts.toggle');
+    Route::delete('/courts/{court}', [SportController::class, 'destroyCourt'])->name('courts.destroy');
 
-        Route::post('cases/{case}/routing', [CaseRoutingController::class, 'store'])
-            ->name('cases.routing.store');
+    Route::middleware('role:admin,manager')->group(function () {
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export/{format}', [ReportController::class, 'export'])->name('reports.export');
+    });
 
-        Route::post('cases/{case}/attachments', [CaseAttachmentController::class, 'store'])
-            ->name('cases.attachments.store');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/users', [SettingsController::class, 'storeUser'])->name('settings.users.store');
+        Route::put('/settings/users/{user}', [SettingsController::class, 'updateUser'])->name('settings.users.update');
+    });
 
-        // Attachments live outside the web root; these are the only ways to
-        // read one, and both re-check the case policy on every request.
-        Route::get('cases/{case}/attachments/{attachment}', [CaseAttachmentController::class, 'download'])
-            ->name('cases.attachments.download');
-        Route::get('cases/{case}/attachments/{attachment}/view', [CaseAttachmentController::class, 'view'])
-            ->name('cases.attachments.view');
+    Route::get('/search', SearchController::class)->name('search');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
-        Route::controller(DepartmentController::class)->group(function (): void {
-            Route::get('departments', 'index')->name('departments.index');
-            Route::post('departments', 'store')->name('departments.store');
-            Route::get('departments/{department}', 'show')->name('departments.show');
-        });
-
-        Route::controller(UserController::class)->group(function (): void {
-            Route::get('users', 'index')->name('users.index');
-            Route::get('users/create', 'create')->name('users.create');
-            Route::post('users', 'store')->name('users.store');
-            Route::get('users/{user}/edit', 'edit')->name('users.edit');
-            Route::patch('users/{user}', 'update')->name('users.update');
-            Route::patch('users/{user}/active', 'toggleActive')->name('users.toggle-active');
-            Route::patch('users/{user}/role', 'revokeRole')->name('users.revoke-role');
-            Route::delete('users/{user}/departments/{department}', 'revokeDepartment')
-                ->name('users.departments.revoke');
-        });
-
-        Route::controller(NotificationController::class)->group(function (): void {
-            Route::get('notifications', 'index')->name('notifications.index');
-            Route::get('notifications/{notification}', 'open')->name('notifications.open');
-            Route::patch('notifications/{notification}/read', 'markAsRead')->name('notifications.read');
-            Route::post('notifications/read-all', 'markAllAsRead')->name('notifications.read-all');
-        });
-
-        Route::controller(ProfileController::class)->group(function (): void {
-            Route::get('profile', 'show')->name('profile.show');
-            Route::patch('profile', 'update')->name('profile.update');
-            Route::patch('profile/password', 'updatePassword')->name('profile.password');
-        });
-
-        Route::get('activity', ActivityLogController::class)->name('activity.index');
+    Route::prefix('api')->group(function () {
+        Route::get('/calendar', CalendarApiController::class)->name('api.calendar');
+        Route::get('/members/search', [MemberApiController::class, 'search'])->name('api.members.search');
     });
 });

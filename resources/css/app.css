@@ -1,156 +1,315 @@
 @import 'tailwindcss';
 
-/*
- * Blade templates are picked up automatically, but the status/priority pill
- * classes are returned from PHP enums, so app/ must be scanned too or those
- * utilities get tree-shaken out of the build.
- */
-@source '../views/**/*.blade.php';
-@source '../../app/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
 
-/*
- * Design tokens — the single source of truth is docs/design-system.md.
- *
- * Tailwind v4 replaces tailwind.config.js with this `@theme` block: every
- * custom property below becomes a first-class utility (`--color-navy` yields
- * `bg-navy`, `text-navy`, `border-navy`, and so on), which is why no Blade
- * template in this project contains a raw hex code.
- */
 @theme {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
-
-    /* Section 1 — core colour tokens */
-    --color-cream: #f7f5ef;
-    --color-surface: #ffffff;
-    --color-navy: #132a45;
-    --color-navy-light: #1e3a5c;
-    --color-navy-hover: #1b3251;
-    --color-teal: #2f7d6b;
-    --color-teal-tint: #e4f0eb;
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #3d4854;
-    --color-text-muted: #8a7f6e;
-    --color-text-inverse: #ffffff;
-    --color-text-inverse-muted: #b8c4d1;
-    --color-border: #edeae2;
-
-    /* Section 1 — stat card pairs */
-    --color-total-bg: #ffffff;
-    --color-total-text: #1a1a1a;
-    --color-overdue-bg: #fbe3e3;
-    --color-overdue-text: #b23a3a;
-
-    /* Section 1 — status pill pairs */
-    --color-pending-bg: #fbebd3;
-    --color-pending-text: #9a6a1e;
-    --color-resolved-bg: #e1efe0;
-    --color-resolved-text: #3a6b39;
-    --color-escalated-bg: #fbe3e3;
-    --color-escalated-text: #c43d3d;
-    --color-progress-bg: #eae6f7;
-    --color-progress-text: #5b4fa8;
-    --color-closed-bg: #edeae2;
-    --color-closed-text: #6b6b6b;
-    --color-referred-bg: #dce7f7;
-    --color-referred-text: #2e5fa8;
-
-    /* Section 3 — corner radius: 10–14px on cards, buttons, inputs, pills */
-    --radius-control: 10px;
-    --radius-card: 14px;
-
-    /* Section 4 — sidebar rail widths */
-    --spacing-sidebar: 240px;
-    --spacing-rail: 64px;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Manrope', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --color-navy: #0b1d36;
+    --color-navy-800: #122846;
+    --color-navy-700: #17345c;
+    --color-electric: #1d4ed8;
+    --color-electric-400: #3b82f6;
+    --color-lime: #84cc16;
+    --color-ink: #1e293b;
+    --color-mist: #f4f6f8;
+    --color-paid: #16a34a;
+    --color-partial: #f97316;
+    --color-pending: #eab308;
+    --color-hold: #7c3aed;
+    --color-cancelled: #dc2626;
 }
 
-/*
- * Collapsed sidebar state.
- *
- * This is a class on <html> set by a blocking script in the document head,
- * not an Alpine binding. A bound class is only applied after hydration, so the
- * sidebar was painted with no width at all and then jumped — and animated —
- * into place on every single page load. Resolving it in CSS means the rail is
- * correct on the first frame, and the width transition only ever runs when the
- * officer actually clicks the toggle.
- */
-@custom-variant rail (html.sidebar-collapsed &);
+html, body {
+    min-height: 100%;
+}
 
-@layer base {
-    html {
-        background-color: var(--color-cream);
-        -webkit-font-smoothing: antialiased;
+body {
+    background: var(--color-mist);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+.club-shell {
+    min-height: 100vh;
+    background:
+        radial-gradient(1200px 400px at 100% -10%, rgba(29, 78, 216, 0.08), transparent 50%),
+        radial-gradient(800px 300px at -10% 0%, rgba(132, 204, 22, 0.08), transparent 45%),
+        var(--color-mist);
+}
+
+.sidebar {
+    width: 18rem;
+    background: linear-gradient(180deg, #0b1d36 0%, #102544 58%, #0b1d36 100%);
+}
+
+@media (min-width: 1024px) {
+    .sidebar.is-collapsed {
+        width: 5.75rem;
     }
 
-    body {
-        color: var(--color-text-primary);
+    .sidebar.is-collapsed .sidebar-label,
+    .sidebar.is-collapsed .nav-link span {
+        display: none;
     }
 
-    /* Section 2 — table headers: uppercase, 11–12px, letter-spaced, muted */
-    th {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--color-text-muted);
-    }
-
-    [x-cloak] {
-        display: none !important;
+    .sidebar.is-collapsed .nav-link {
+        justify-content: center;
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
     }
 }
 
-/*
- * Shared component classes.
- *
- * Declared with `@utility` rather than inside `@layer components` so they can
- * compose each other — `.btn-primary` applies `btn`, which Tailwind v4 only
- * resolves for classes registered as real utilities.
- */
-
-/* Section 5 — inputs: rounded, light border, comfortable padding */
-@utility field {
-    @apply w-full min-w-0 max-w-full rounded-control border border-border bg-surface px-3.5 py-3 text-base text-text-primary
-    outline-none transition placeholder:text-text-muted focus:border-teal focus:ring-2 focus:ring-teal/15 md:text-sm;
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.9rem;
+    padding: 0.7rem 0.85rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: 500;
+    transition: 160ms ease;
 }
 
-@utility field-label {
-    @apply block text-xs font-bold text-text-secondary;
+.nav-link:hover,
+.nav-link.is-active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
-@utility field-error {
-    @apply mt-1 text-xs font-medium text-escalated-text;
+.nav-link.is-active {
+    box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
-/* Section 5 — buttons */
-@utility btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-bold
-    transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+.card {
+    background: white;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.35);
 }
 
-@utility btn-primary {
-    @apply btn bg-navy text-text-inverse hover:bg-navy-light;
+.stat-card {
+    position: relative;
+    overflow: hidden;
 }
 
-@utility btn-secondary {
-    @apply btn border border-border bg-surface text-text-secondary hover:border-navy;
+.stat-card::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    opacity: 0.12;
 }
 
-@utility btn-ghost-teal {
-    @apply btn border border-teal/25 bg-surface text-teal hover:bg-teal-tint;
+.tone-navy::after { background: #0b1d36; }
+.tone-paid::after { background: #16a34a; }
+.tone-partial::after { background: #f97316; }
+.tone-pending::after { background: #eab308; }
+.tone-cancelled::after { background: #dc2626; }
+.tone-hold::after { background: #7c3aed; }
+.tone-available::after { background: #64748b; }
+.tone-lime::after { background: #84cc16; }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 0.85rem;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+    transition: 150ms ease;
+    cursor: pointer;
 }
 
-/* Section 3 — cards: white fill, subtle border, no harsh shadow */
-@utility card {
-    @apply rounded-card border border-border bg-surface;
+.btn-primary {
+    background: linear-gradient(180deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 10px 20px -12px rgba(29, 78, 216, 0.9);
 }
 
-@utility pill {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap;
+.btn-primary:hover { filter: brightness(1.05); }
+
+.btn-lime {
+    background: #84cc16;
+    color: #12240a;
 }
 
-/* Section 2 — small muted helper text and timestamps */
-@utility meta {
-    @apply text-xs text-text-muted;
+.btn-ghost {
+    background: #eef2f7;
+    color: #0f172a;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-soft {
+    background: white;
+    border: 1px solid #dbe3ee;
+    color: #0f172a;
+}
+
+.input, .select, textarea.input {
+    width: 100%;
+    border-radius: 0.85rem;
+    border: 1px solid #d7deea;
+    background: #fff;
+    padding: 0.7rem 0.85rem;
+    outline: none;
+    color: #0f172a;
+}
+
+.input:focus, .select:focus, textarea.input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.badge-paid { background: #dcfce7; color: #166534; }
+.badge-partial { background: #ffedd5; color: #9a3412; }
+.badge-pending { background: #fef9c3; color: #854d0e; }
+.badge-hold { background: #ede9fe; color: #5b21b6; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+.badge-available { background: #f1f5f9; color: #475569; }
+.badge-navy { background: #dbeafe; color: #1e3a8a; }
+
+.slot-card {
+    min-height: 0;
+    height: 100%;
+    border-radius: 0.9rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: 140ms ease;
+    overflow: hidden;
+}
+
+.slot-card:hover { transform: translateY(-1px); }
+
+.slot-available {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+.slot-paid {
+    background: linear-gradient(180deg, #dcfce7, #bbf7d0);
+    border-color: #86efac;
+    color: #14532d;
+}
+
+.slot-partial {
+    background: linear-gradient(180deg, #ffedd5, #fed7aa);
+    border-color: #fdba74;
+    color: #7c2d12;
+}
+
+.slot-pending {
+    background: linear-gradient(180deg, #fef9c3, #fde68a);
+    border-color: #facc15;
+    color: #713f12;
+}
+
+.slot-hold {
+    background: linear-gradient(180deg, #ede9fe, #ddd6fe);
+    border-color: #c4b5fd;
+    color: #4c1d95;
+}
+
+.slot-cancelled {
+    background: linear-gradient(180deg, #fee2e2, #fecaca);
+    border-color: #fca5a5;
+    color: #7f1d1d;
+}
+
+.slot-closed, .slot-block {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: default;
+}
+
+.calendar-horizontal {
+    min-width: max-content;
+}
+
+.calendar-horizontal .slot-card {
+    min-height: 86px;
+}
+
+.calendar-vertical {
+    display: grid;
+    align-items: stretch;
+}
+
+.calendar-vertical .slot-card {
+    min-height: 0;
+}
+
+.drawer, .modal-sheet {
+    animation: rise 180ms ease;
+}
+
+@keyframes rise {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #e8edf3 25%, #f8fafc 37%, #e8edf3 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.2s infinite;
+    border-radius: 0.75rem;
+}
+
+@keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}
+
+.timeline-item { position: relative; padding-left: 1.4rem; }
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0.3rem;
+    top: 0.4rem;
+    bottom: -1rem;
+    width: 2px;
+    background: #dbe3ee;
+}
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: #2563eb;
+}
+
+@media print {
+    .no-print { display: none !important; }
+    .card { box-shadow: none; }
 }

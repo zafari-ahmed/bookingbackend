@@ -49,9 +49,6 @@
             <option value="partial_paid">Partial Paid</option>
             <option value="pending">Pending</option>
         </select>
-        <div class="ml-auto">
-            @include('calendar.partials.layout-toggle')
-        </div>
     </div>
     <div class="mb-4 flex flex-wrap gap-2 text-xs font-semibold">
         <span class="badge badge-available">Available</span>
@@ -61,7 +58,7 @@
         <span class="badge badge-hold">On Hold</span>
         <span class="badge badge-cancelled">Cancelled</span>
     </div>
-    @include('calendar.partials.day-grid')
+    @include('calendar.partials.fullcalendar')
     @include('calendar.partials.drawer')
     @include('calendar.partials.modals')
 </div>

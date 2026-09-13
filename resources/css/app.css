@@ -309,6 +309,100 @@ body {
     background: #2563eb;
 }
 
+.club-calendar {
+    --fc-border-color: #e8edf3;
+    --fc-page-bg-color: #ffffff;
+    --fc-neutral-bg-color: #f8fafc;
+    --fc-today-bg-color: #eff6ff;
+    --fc-now-indicator-color: #2563eb;
+    --fc-button-bg-color: #1d4ed8;
+    --fc-button-border-color: #1d4ed8;
+    --fc-button-hover-bg-color: #1e40af;
+    --fc-button-hover-border-color: #1e40af;
+    --fc-button-active-bg-color: #0b1d36;
+    --fc-button-active-border-color: #0b1d36;
+    --fc-event-border-color: transparent;
+}
+
+.club-calendar .fc {
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.club-calendar .fc-toolbar-title {
+    font-family: Manrope, Inter, sans-serif;
+    font-weight: 800;
+    color: #0b1d36;
+}
+
+.club-calendar .fc-button {
+    border-radius: 0.75rem !important;
+    text-transform: none !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+
+.club-calendar .fc-timegrid-slot {
+    height: 2rem;
+}
+
+.club-calendar:not(.is-compact) .fc-timegrid-body,
+.club-calendar:not(.is-compact) .fc-timegrid-slots table {
+    height: auto !important;
+}
+
+.club-calendar .fc-timegrid-event {
+    border-radius: 0.75rem;
+    border-width: 1px;
+    padding: 0.2rem 0.35rem;
+}
+
+.fc-club-event {
+    line-height: 1.25;
+    overflow: hidden;
+}
+
+.fc-club-time,
+.fc-club-meta {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.fc-club-name {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.fc-club-count {
+    font-size: 12px;
+    font-weight: 800;
+    padding: 0.15rem 0.2rem;
+}
+
+.club-calendar .fc-dayGridMonth-view .fc-daygrid-event-harness,
+.club-calendar .fc-dayGridMonth-view .fc-daygrid-event,
+.club-calendar .fc-dayGridMonth-view .fc-daygrid-more-link {
+    display: none !important;
+}
+
+.club-calendar .fc-daygrid-day-frame {
+    min-height: 6.5rem;
+}
+
+.fc-club-day-count {
+    margin: 0.45rem 0.4rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.6rem;
+    background: #1d4ed8;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 0.4rem 0.55rem;
+    pointer-events: none;
+}
+
 @media print {
     .no-print { display: none !important; }
     .card { box-shadow: none; }

@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('api')->group(function () {
         Route::get('/calendar', CalendarApiController::class)->name('api.calendar');
+        Route::get('/calendar/events', [CalendarApiController::class, 'events'])->name('api.calendar.events');
         Route::get('/members/search', [MemberApiController::class, 'search'])->name('api.members.search');
     });
 });

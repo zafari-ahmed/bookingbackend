@@ -1,3 +1,8 @@
+import { Calendar } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
+import interactionPlugin from '@fullcalendar/interaction';
 import { csrfHeaders, durationLabel, durationOptions, minutesBetween, money, timeLabel } from './club';
 
 export function calendarPage(config) {
@@ -25,7 +30,7 @@ export function calendarPage(config) {
         compact: Boolean(config.compact),
         fullReload: Boolean(config.fullReload),
         refreshTimer: null,
-        layout: storedLayout(),
+        fc: null,
         durationOptions,
 
         get filteredCourts() {
@@ -34,20 +39,16 @@ export function calendarPage(config) {
         },
 
         get dateLabel() {
-            return this.data.label || this.pretty(this.date);
+            return this.pretty(this.date);
         },
 
         init() {
-            this.load();
+            this.$nextTick(() => this.mountCalendar());
             this.refreshTimer = setInterval(() => {
                 if (this.bookingOpen || this.holdOpen || this.conflict || this.proofModal) {
                     return;
                 }
-                if (this.fullReload) {
-                    window.location.reload();
-                    return;
-                }
-                this.load({ silent: true });
+                this.fc?.refetchEvents();
             }, 60000);
         },
 
@@ -58,39 +59,236 @@ export function calendarPage(config) {
         },
 
         shift(days) {
-            const next = new Date(`${this.date}T00:00:00`);
-            next.setDate(next.getDate() + days);
-            this.date = next.toISOString().slice(0, 10);
-            this.load();
+            this.fc?.incrementDate({ days });
         },
 
         today() {
-            this.date = new Date().toISOString().slice(0, 10);
-            this.load();
+            this.fc?.today();
         },
 
         setView(view) {
             this.view = view;
-            this.load();
+            const map = { day: 'timeGridDay', week: 'timeGridWeek', month: 'dayGridMonth' };
+            this.fc?.changeView(map[view] || 'timeGridDay');
         },
 
-        setLayout(layout) {
-            this.layout = layout;
+        async load() {
+            this.fc?.refetchEvents();
+        },
+
+        mountCalendar() {
+            if (! this.$refs.fc || this.fc) return;
+
+            const clock = { hour: '2-digit', minute: '2-digit', hour12: false };
+
+            this.fc = new Calendar(this.$refs.fc, {
+                plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+                initialView: this.view === 'month' ? 'dayGridMonth' : (this.view === 'week' ? 'timeGridWeek' : 'timeGridDay'),
+                initialDate: this.date,
+                timeZone: 'local',
+                height: this.compact ? 720 : 'auto',
+                contentHeight: this.compact ? 640 : 'auto',
+                expandRows: false,
+                nowIndicator: true,
+                allDaySlot: false,
+                slotDuration: '00:30:00',
+                snapDuration: '00:30:00',
+                slotMinTime: '00:00:00',
+                slotMaxTime: '24:00:00',
+                scrollTime: '00:00:00',
+                slotLabelInterval: '01:00:00',
+                slotLabelFormat: clock,
+                eventTimeFormat: clock,
+                views: {
+                    timeGridDay: {
+                        slotMinTime: '00:00:00',
+                        slotMaxTime: '24:00:00',
+                        dayHeaderFormat: { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' },
+                    },
+                    timeGridWeek: {
+                        slotMinTime: '00:00:00',
+                        slotMaxTime: '24:00:00',
+                    },
+                },
+                selectable: true,
+                selectMirror: true,
+                dayMaxEvents: false,
+                headerToolbar: this.compact
+                    ? { left: 'prev,next today', center: 'title', right: '' }
+                    : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
+                buttonText: { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
+                events: (info, success, failure) => this.fetchEvents(info, success, failure),
+                datesSet: (info) => {
+                    const current = info.view.currentStart || info.start;
+                    this.date = this.fmtDate(info.view.type === 'timeGridDay' ? info.start : current);
+                    this.view = info.view.type.includes('Month') ? 'month' : (info.view.type.includes('Week') || info.view.type.includes('list') ? 'week' : 'day');
+                    this.$nextTick(() => this.paintMonthCounts());
+                },
+                eventsSet: () => {
+                    this.$nextTick(() => this.paintMonthCounts());
+                },
+                dateClick: (info) => {
+                    if (info.view.type === 'dayGridMonth') {
+                        this.openDay(info.dateStr || info.date);
+                    }
+                },
+                eventClick: (info) => {
+                    info.jsEvent.preventDefault();
+                    this.openBooking(info.event.id);
+                },
+                select: (info) => {
+                    this.fc.unselect();
+                    if (info.view.type === 'dayGridMonth') {
+                        this.openDay(info.startStr || info.start);
+                        return;
+                    }
+                    this.openFromCalendar(info.start, info.end);
+                },
+                eventContent: (arg) => this.eventHtml(arg),
+            });
+
+            this.fc.render();
+        },
+
+        async fetchEvents(info, success, failure) {
             try {
-                localStorage.setItem('calendar-layout', layout);
-            } catch {
-                // ignore storage errors
+                const params = new URLSearchParams({
+                    from: info.startStr.slice(0, 10),
+                    to: info.endStr.slice(0, 10),
+                    ...this.clean(this.filters),
+                });
+                const res = await fetch(`/api/calendar/events?${params}`, { headers: { Accept: 'application/json' } });
+                const data = await res.json();
+                const events = Array.isArray(data.events) ? data.events : Object.values(data.events || {});
+                success(events);
+                this.loading = false;
+            } catch (error) {
+                this.loading = false;
+                failure(error);
             }
         },
 
-        async load(options = {}) {
-            if (! options.silent) {
-                this.loading = true;
+        paintMonthCounts() {
+            const root = this.$refs.fc;
+            if (! root || this.fc?.view?.type !== 'dayGridMonth') {
+                return;
             }
-            const params = new URLSearchParams({ date: this.date, view: this.view, ...this.clean(this.filters) });
-            const res = await fetch(`/api/calendar?${params}`, { headers: { Accept: 'application/json' } });
-            this.data = await res.json();
-            this.loading = false;
+
+            const counts = {};
+            for (const event of this.fc.getEvents()) {
+                const day = this.eventDay(event);
+                if (! day) continue;
+                counts[day] = (counts[day] || 0) + 1;
+            }
+
+            root.querySelectorAll('.fc-daygrid-day').forEach((cell) => {
+                const day = cell.dataset.date;
+                const frame = cell.querySelector('.fc-daygrid-day-frame');
+                if (! day || ! frame) return;
+
+                let badge = frame.querySelector('.fc-club-day-count');
+                if (! badge) {
+                    badge = document.createElement('div');
+                    badge.className = 'fc-club-day-count';
+                    frame.appendChild(badge);
+                }
+
+                const total = counts[day] || 0;
+                badge.hidden = total === 0;
+                badge.textContent = total === 1 ? '1 booking' : `${total} bookings`;
+            });
+        },
+
+        eventDay(event) {
+            const start = event.start || event.startStr;
+            if (start) {
+                const date = start instanceof Date ? start : new Date(start);
+                if (! Number.isNaN(date.getTime())) {
+                    return this.fmtDate(date);
+                }
+            }
+
+            const booking = event.extendedProps || {};
+            if (booking.date) {
+                return String(booking.date).slice(0, 10);
+            }
+
+            return String(event.start || '').slice(0, 10);
+        },
+
+        openDay(value) {
+            const day = typeof value === 'string' && value.length >= 10 ? value.slice(0, 10) : this.fmtDate(value);
+            this.date = day;
+            this.view = 'day';
+            if (! this.fc) return;
+            this.fc.changeView('timeGridDay', day);
+            this.fc.refetchEvents();
+        },
+
+        eventHtml(arg) {
+            const booking = arg.event.extendedProps || {};
+            const name = this.escapeHtml(booking.member?.name || arg.event.title);
+            const court = this.escapeHtml(booking.court?.name || '');
+            const label = this.escapeHtml(booking.label || '');
+            const amount = booking.total_amount != null ? this.escapeHtml(money(booking.total_amount)) : '';
+
+            return {
+                html: `<div class="fc-club-event">
+                    <div class="fc-club-time">${this.escapeHtml(arg.timeText)}</div>
+                    <div class="fc-club-name">${name}</div>
+                    <div class="fc-club-meta">${court}${label ? ' · '+label : ''}</div>
+                    ${amount ? `<div class="fc-club-meta">${amount}</div>` : ''}
+                </div>`,
+            };
+        },
+
+        openFromCalendar(startDate, endDate) {
+            const court = this.filteredCourts.find((item) => String(item.id) === String(this.filters.court_id)) || this.filteredCourts[0];
+            if (! court) {
+                window.clubToast('Select a court first', 'err');
+                return;
+            }
+
+            const start = this.hhmm(startDate);
+            let end = this.hhmm(endDate);
+            if (! end || end === start) {
+                end = this.addMinutes(start, 60);
+            }
+
+            const clock = this.fmtDate(startDate);
+            const session = start < '12:00' ? this.addDays(clock, -1) : clock;
+
+            this.form = {
+                ...blankForm(),
+                booking_date: session,
+                sport_id: court.sport_id || court.sport?.id,
+                court_id: court.id,
+                start_time: start,
+                end_time: end,
+                total_amount: court.price_per_hour,
+            };
+            this.quote();
+            this.bookingOpen = true;
+            this.memberQuery = '';
+            this.memberHits = [];
+        },
+
+        fmtDate(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        },
+
+        hhmm(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        },
+
+        escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;');
         },
 
         clean(obj) {

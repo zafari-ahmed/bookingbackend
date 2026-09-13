@@ -127,6 +127,16 @@ class BookingEngineTest extends TestCase
         $this->assertSame('available', $cells->firstWhere('slot', '10:00')['type']);
     }
 
+    public function test_fullcalendar_events_endpoint_returns_bookings(): void
+    {
+        $this->actingAs($this->staff)->postJson('/bookings', $this->payload())->assertOk();
+
+        $this->actingAs($this->staff)
+            ->getJson('/api/calendar/events?from=2026-09-12&to=2026-09-13')
+            ->assertOk()
+            ->assertJsonPath('events.0.title', 'Padel Court 1 · Ahmed Khan');
+    }
+
     public function test_overnight_court_hours_are_allowed(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

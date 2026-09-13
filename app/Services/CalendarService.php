@@ -141,6 +141,64 @@ class CalendarService
         ];
     }
 
+    public function events(string $from, string $to, array $filters = []): array
+    {
+        $courts = $this->courts($filters);
+        $window = $this->timeWindow($courts);
+
+        $bookings = Booking::query()
+            ->with(['member', 'sport', 'court', 'hold'])
+            ->whereDate('booking_date', '>=', Carbon::parse($from)->subDay()->toDateString())
+            ->whereDate('booking_date', '<=', Carbon::parse($to)->addDay()->toDateString())
+            ->when($filters['court_id'] ?? null, fn ($q, $id) => $q->where('court_id', $id))
+            ->when($filters['sport_id'] ?? null, fn ($q, $id) => $q->where('sport_id', $id))
+            ->when(
+                ($filters['booking_status'] ?? null) === 'cancelled',
+                fn ($q) => $q->where('booking_status', 'cancelled'),
+                fn ($q) => $q->when(
+                    $filters['booking_status'] ?? null,
+                    fn ($inner, $status) => $inner->where('booking_status', $status),
+                    fn ($inner) => $inner->where('booking_status', '!=', 'cancelled'),
+                ),
+            )
+            ->when($filters['payment_status'] ?? null, fn ($q, $status) => $q->where('payment_status', $status))
+            ->orderBy('booking_date')
+            ->orderBy('start_time')
+            ->get();
+
+        return [
+            'slotMinTime' => $window['min'],
+            'slotMaxTime' => $window['max'],
+            'events' => $bookings->map(function (Booking $booking) {
+                $open = TimeSlots::label((string) ($booking->court?->opening_time ?? '17:00'));
+                $close = TimeSlots::label((string) ($booking->court?->closing_time ?? '03:00'));
+                $tone = $booking->tone();
+                $colors = $this->toneColors($tone);
+                $payload = $this->serializeBooking($booking);
+                $times = $this->fullCalendarRange($booking, $open, $close);
+
+                return [
+                    'id' => (string) $booking->id,
+                    'title' => ($booking->court?->name ?? 'Court').' · '.($booking->member?->name ?? 'Member'),
+                    'start' => $times['start'],
+                    'end' => $times['end'],
+                    'backgroundColor' => $colors['bg'],
+                    'borderColor' => $colors['border'],
+                    'textColor' => $colors['text'],
+                    'extendedProps' => $payload,
+                ];
+            })->values(),
+        ];
+    }
+
+    public function timeWindow($courts = null): array
+    {
+        return [
+            'min' => '00:00:00',
+            'max' => '24:00:00',
+        ];
+    }
+
     public function serializeBooking(Booking $booking, ?int $slotMinutes = null): array
     {
         $slotMinutes ??= Setting::slotDuration();
@@ -252,6 +310,37 @@ class CalendarService
         }
 
         return $cells;
+    }
+
+    /**
+     * @return array{start: string, end: string}
+     */
+    private function fullCalendarRange(Booking $booking, string $open, string $close): array
+    {
+        [$start, $end] = TimeSlots::dateRange(
+            $booking->booking_date->toDateString(),
+            $booking->startLabel(),
+            $booking->endLabel(),
+        );
+
+        return [
+            'start' => $start->format('Y-m-d\TH:i:s'),
+            'end' => $end->format('Y-m-d\TH:i:s'),
+        ];
+    }
+
+    /**
+     * @return array{bg: string, border: string, text: string}
+     */
+    private function toneColors(string $tone): array
+    {
+        return match ($tone) {
+            'paid' => ['bg' => '#86efac', 'border' => '#22c55e', 'text' => '#14532d'],
+            'partial' => ['bg' => '#fdba74', 'border' => '#f97316', 'text' => '#7c2d12'],
+            'hold' => ['bg' => '#c4b5fd', 'border' => '#7c3aed', 'text' => '#4c1d95'],
+            'cancelled' => ['bg' => '#fca5a5', 'border' => '#dc2626', 'text' => '#7f1d1d'],
+            default => ['bg' => '#fde047', 'border' => '#eab308', 'text' => '#713f12'],
+        };
     }
 
     private function markOccupied(array &$occupied, string $start, int $span, int $minutes): void

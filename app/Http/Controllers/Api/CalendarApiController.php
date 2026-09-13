@@ -22,4 +22,15 @@ class CalendarApiController extends Controller
 
         return response()->json($data);
     }
+
+    public function events(Request $request, CalendarService $calendar)
+    {
+        $filters = $request->only(['sport_id', 'court_id', 'booking_status', 'payment_status']);
+
+        return response()->json($calendar->events(
+            $request->query('from', now()->toDateString()),
+            $request->query('to', now()->toDateString()),
+            $filters,
+        ));
+    }
 }
